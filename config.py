@@ -2,7 +2,7 @@
 import os
 
 name = 'Luffy AI'
-shiki_id = 6380108080
+luffy_id = 23444444
 api_id = os.getenv('API_ID', None)
 api_hash = os.getenv('API_HASH', None)
 session = os.getenv('SESSION', None)
