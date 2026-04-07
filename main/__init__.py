@@ -1,10 +1,8 @@
-import os
+import pyrogram
 import config
 import pymongo
 import logging
 import aiohttp
-
-from pyrogram import Client
 
 
 aiohttpsession = aiohttp.ClientSession() # session
@@ -14,17 +12,13 @@ logging.basicConfig(level=logging.INFO, handlers=[logging.FileHandler('logs.txt'
               logging.StreamHandler()], format=FORMAT)
 
 
-api_id = os.getenv("api_id")
-api_hash = os.getenv("api_hash")
-session_string = os.getenv("session_string")
-
-
-serena = Client("serena",
-          api_id=api_id,
-          api_hash=api_hash,
-          session_string=session_string,
-          plugins=dict(root='main'), )
-
+luffy = pyrogram.Client(
+   name=config.name,
+   api_id=config.api_id,
+   api_hash=config.api_hash,
+   session_string=config.session,
+   plugins=dict(root='main')
+)
 
 connect_db = pymongo.MongoClient(config.db_url)
-mongodb = connect_db['SERENA']
+mongodb = connect_db['LUFFY']
