@@ -45,7 +45,7 @@ async def start_command(client, message):
 async def serena_react(client, message):
      try:
         # Fixed: Pyrogram reaction syntax
-        await client.send_reaction(
+        await serena.send_reaction(
             chat_id=message.chat.id,
             message_id=message.id,
             emoji=random.choice(['🥰', '❤️', '😁', '🗿', '🤗', '🎉', '😎'])
@@ -85,7 +85,7 @@ async def serena_reply(client, message):
     chat_id = message.chat.id
     user = message.sender_chat if message.sender_chat else message.from_user
     name = message.sender_chat.title if message.sender_chat else message.from_user.first_name
-    chatname = message.chat.title if message.chat.title else (message.chat.first_name or "Private Chat")
+    chatname = message.chat.title if message.chat.title else (message.chat.first_name
      
     # Logic for Mentions
     is_mentioned = message.text and bool(re.search(r'serena|@serenaaichatbot', string=message.text, flags=re.IGNORECASE))
