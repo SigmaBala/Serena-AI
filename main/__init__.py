@@ -12,7 +12,7 @@ logging.basicConfig(level=logging.INFO, handlers=[logging.FileHandler('logs.txt'
               logging.StreamHandler()], format=FORMAT)
 
 
-luffy = pyrogram.Client(
+serena = pyrogram.Client(
    name=config.name,
    api_id=config.api_id,
    api_hash=config.api_hash,
@@ -21,4 +21,4 @@ luffy = pyrogram.Client(
 )
 
 connect_db = pymongo.MongoClient(config.db_url)
-mongodb = connect_db['LUFFY']
+mongodb = connect_db['SERENA']
