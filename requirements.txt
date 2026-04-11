@@ -1,6 +1,6 @@
-https://github.com/KurimuzonAkuma/pyrogram/archive/dev.zip
+kurigram
 tgcrypto
-aiohttp
+aiohttp==3.11.18
 requests
 sakura-fm
 asyncio
