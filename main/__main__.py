@@ -1,4 +1,4 @@
-from main import serena
+from main import Serena
 
 import pyrogram
 import asyncio
@@ -6,10 +6,10 @@ import logging
 
 
 async def client():
-      await serena.start()
+      await Serena.start()
       await pyrogram.idle()
         
 
 if __name__ == "__main__":
      logging.info('Bot Started!')
-     serena.loop.run_until_complete(client())
+     Serena.loop.run_until_complete(client())
