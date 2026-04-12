@@ -21,7 +21,7 @@ RAN_MSG = [
 ]
 
 # Fixed: Added missing closing parenthesis
-serena = Client(
+Serena= Client(
     username=config.username,
     password=config.password,
     mongo=config.db_url
