@@ -55,7 +55,7 @@ async def serena_react(client, message):
 
 async def ask_serena(chat_id, user_id, name, prompt):
      try:
-        response = serena.sendMessage(user_id, config.char_id, prompt)
+        response = sakuserena.sendMessage(user_id, config.char_id, prompt)
         reply = response['reply']
         reply = re.sub(r'\bUser\b(?!s)', name, reply, flags=re.IGNORECASE)
      except Exception as e: # Fixed: Correct exception handling
