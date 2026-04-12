@@ -57,7 +57,6 @@ async def ask_serena(chat_id, user_id, name, prompt):
      try:
         response = serena.sendMessage(user_id, config.char_id, prompt)
         reply = response['reply']
-        reply = re.sub(r'\bUser\b(?!s)', name, reply, flags=re.IGNORECASE)
      except Exception as e: # Fixed: Correct exception handling
            print(f"chat_id: {chat_id}\nUser: {name}\nError: {str(e)}\nPrompt: {prompt}")
            reply = random.choice(RAN_MSG)
