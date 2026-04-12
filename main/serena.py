@@ -57,10 +57,17 @@ async def ask_serena(chat_id, user_id, name, prompt):
      try:
         response = serena.sendMessage(user_id, config.char_id, prompt)
         reply = response['reply']
-     except Exception as e: # Fixed: Correct exception handling
-           print(f"chat_id: {chat_id}\nUser: {name}\nError: {str(e)}\nPrompt: {prompt}")
-           reply = random.choice(RAN_MSG)
+     except Exception:
+           print(
+                   'chat_id: ',chat_id,
+                   '\nUser: ', name, 
+                   '\nError: ', str(Exception), 
+                   '\nPrompt: ', prompt
+               )
+           reply = random.choice(SHIKI_MSG)
+           
      return reply
+     
 
 def admin_only(func):
      async def wrapped(client, message):
