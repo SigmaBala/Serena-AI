@@ -1,5 +1,5 @@
 from sakura import Client
-from main import serena, aiohttpsession
+from main import serena
 from main.database import *
 from pyrogram import filters, types, enums, errors
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
