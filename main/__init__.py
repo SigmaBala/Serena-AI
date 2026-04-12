@@ -14,7 +14,7 @@ pbot = pyrogram.Client(
    name=config.name,
    api_id=config.api_id,
    api_hash=config.api_hash,
-   token=config.token,
+   bot_token=config.token,
    plugins=dict(root='main')
 )
 
