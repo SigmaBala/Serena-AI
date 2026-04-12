@@ -1,4 +1,4 @@
-from sakura import Client
+
 from main import pbot
 from main.database import *
 from pyrogram import filters, types, enums, errors
@@ -12,20 +12,6 @@ import os
 
 developers = [5696053228, 1666544436]
 
-RAN_MSG = [
-     "Hi there, I can't reply to that question. Try asking again.",
-     "Hello, something went wrong.",
-     "Hey, I don't know why you'd ask such a thing.",
-     "Hmm... well, I don't know.",
-     "Please ask something else."
-]
-
-
-serena = Client(
-    username=config.username,
-    password=config.password,
-    mongo=config.db_url
-)
 
 @pbot.on_message(filters.command("start"))
 async def start_command(client, message):
@@ -52,14 +38,29 @@ async def serena_react(client, message):
      except Exception:
           pass
 
-async def ask_serena(chat_id, user_id, name, prompt):
-     try:
-        response = serena.sendMessage(
-             user_id, config.char_id, prompt
-        )
-        reply = response['reply']
-     except Exception as e:
-            return await message.reply(str(e))
+async def ask_serena(client, message):
+    messages = [
+        {"role": "system", "content": config.AI_SYS_TXT},
+        {"role": "user", "content": message.text}
+    ]
+
+    headers = {"Authorization": f"Bearer {config.groq_api_key}"}
+    data = {
+        "model": "llama-3.1-8b-instant",
+        "messages": messages
+    }
+
+    try:
+        res = requests.post("https://api.groq.com/openai/v1/chat/completions", 
+                            headers=headers, json=data)
+        
+        if res.status_code == 200:
+            answer = res.json()["choices"][0]["message"]["content"]
+            await message.reply_text(answer)
+        else:
+            await message.reply_text("⚠️ Error connecting to AI.")
+    except Exception as e:
+        await message.reply_text(f"❌ {e}")
      
 
 def admin_only(func):
