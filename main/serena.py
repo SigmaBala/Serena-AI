@@ -38,7 +38,7 @@ async def serena_react(client, message):
      except Exception:
           pass
 
-async def ask_serena(client, message):
+async def ask_serena(message):
     messages = [
         {"role": "system", "content": config.AI_SYS_TXT},
         {"role": "user", "content": message.text}
@@ -115,9 +115,10 @@ async def serena_reply(client, message):
         # Handle Text
         await client.send_chat_action(chat_id=chat_id, action=enums.ChatAction.TYPING)
         await serena_react(client, message)
-        
-        ai_reply = await ask_serena(chat_id, user.id, name, message.text)
-        return await message.reply_text(text=ai_reply, quote=True)
+
+        message = [{'role':'user', 'content': message.text}]
+        ai_reply = await ask_serena(message)
+        return await message.reply_text(text=ai_reply)
 
 @pbot.on_message(filters.command('serena', prefixes=['.', '?', '/']))
 @admin_only
