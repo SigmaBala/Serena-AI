@@ -55,19 +55,22 @@ async def serena_react(client, message):
 
 async def ask_serena(chat_id, user_id, name, prompt):
      try:
-        response = serena.sendMessage(user_id, config.char_id, prompt)
+        response = serena.sendMessage(
+             user_id, config.char_id, prompt
+        )
         reply = response['reply']
-     except Exception:
+        # Fixed regex to handle name replacement
+        reply = re.sub(r'\bUser\b(?!s)', name, reply, flags=re.IGNORECASE)
+     except Exception as e: # <--- Capture the actual error here
            print(
-                   'chat_id: ',chat_id,
-                   '\nUser: ', name, 
-                   '\nError: ', str(Exception), 
-                   '\nPrompt: ', prompt
+                   f'chat_id: {chat_id}',
+                   f'\nUser: {name}', 
+                   f'\nError: {e}', # <--- Print the actual error message
+                   f'\nPrompt: {prompt}'
                )
-           reply = random.choice(SHIKI_MSG)
+           reply = random.choice(RAN_MSG)
            
-     return reply
-     
+     return reply 
 
 def admin_only(func):
      async def wrapped(client, message):
