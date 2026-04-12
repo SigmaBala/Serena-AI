@@ -53,16 +53,18 @@ async def ask_serena(message):
     try:
         res = requests.post("https://api.groq.com/openai/v1/chat/completions", 
                             headers=headers, json=data)
-        
+
         if res.status_code == 200:
             answer = res.json()["choices"][0]["message"]["content"]
-            await message.reply_text(answer)
+            return {'reply': answer}
         else:
-            await message.reply_text("⚠️ Error connecting to AI.")
+            return {'reply': '⚠️ Error connecting to AI.'}
     except Exception as e:
-        await message.reply_text(f"❌ {e}")
-     
+         return (f"❌ {e}")
 
+
+
+     
 def admin_only(func):
      async def wrapped(client, message):
          user_id = message.from_user.id
@@ -78,6 +80,9 @@ def admin_only(func):
             if user.privileges or user_id == config.serena_id or user_id in developers:
                  return await func(client, message)
      return wrapped
+
+
+
 
 @pbot.on_message((filters.text | filters.sticker | filters.animation), group=2)
 async def serena_reply(client, message):
@@ -116,9 +121,14 @@ async def serena_reply(client, message):
         await client.send_chat_action(chat_id=chat_id, action=enums.ChatAction.TYPING)
         await serena_react(client, message)
 
-        message = [{'role':'user', 'content': message.text}]
         ai_reply = await ask_serena(message)
-        return await message.reply_text(text=ai_reply)
+        reply_text = ai_reply['reply']
+        return await message.reply_text(reply_text)
+
+
+
+
+
 
 @pbot.on_message(filters.command('serena', prefixes=['.', '?', '/']))
 @admin_only
