@@ -5,8 +5,6 @@ import logging
 import aiohttp
 
 
-aiohttpsession = aiohttp.ClientSession() # session
-
 FORMAT = f"[{config.name}] %(message)s"
 logging.basicConfig(level=logging.INFO, handlers=[logging.FileHandler('logs.txt'),
               logging.StreamHandler()], format=FORMAT)
