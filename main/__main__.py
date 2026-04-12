@@ -11,5 +11,5 @@ async def client():
         
 
 if __name__ == "__main__":
-     log.info('Bot Started!')
+     logging.info('Bot Started!')
      serena.loop.run_until_complete(client())
