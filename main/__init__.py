@@ -10,7 +10,7 @@ logging.basicConfig(level=logging.INFO, handlers=[logging.FileHandler('logs.txt'
               logging.StreamHandler()], format=FORMAT)
 
 
-Serena= pyrogram.Client(
+serena = pyrogram.Client(
    name=config.name,
    api_id=config.api_id,
    api_hash=config.api_hash,
