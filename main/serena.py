@@ -59,18 +59,9 @@ async def ask_serena(chat_id, user_id, name, prompt):
              user_id, config.char_id, prompt
         )
         reply = response['reply']
-        # Fixed regex to handle name replacement
-        reply = re.sub(r'\bUser\b(?!s)', name, reply, flags=re.IGNORECASE)
-     except Exception as e: # <--- Capture the actual error here
-           print(
-                   f'chat_id: {chat_id}',
-                   f'\nUser: {name}', 
-                   f'\nError: {e}', # <--- Print the actual error message
-                   f'\nPrompt: {prompt}'
-               )
-           reply = random.choice(RAN_MSG)
-           
-     return reply 
+     except Exception as e:
+            return await message.reply(str(e))
+     
 
 def admin_only(func):
      async def wrapped(client, message):
