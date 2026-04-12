@@ -8,6 +8,6 @@ api_hash = os.getenv('API_HASH', 'd8ea642aedb736d40035bc05f0cfd477')
 token = os.getenv('TOKEN', '8352844426:AAEW6QUz40nFIxIIDJq4Mlf7Hz4IOifSKy4')
 password = os.getenv('password', 'ro@4321$')
 username = os.getenv('username', 'BalaSigma')
-db_url = os.getenv('DB_URL', 'mongodb+srv://tofu:tofu@cluster0.42nsiw9.mongodb.net/?retryWrites=true&w=majority')
+db_url = os.getenv('DB_URL', 'mongodb+srv://nandhasigma:vnfVomp7T2jVE3AK@cluster0.gt47zau.mongodb.net')
 chatbot_url = os.getenv('CHATBOT', None)
 char_id = "JwOdxC9"
