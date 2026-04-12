@@ -1,5 +1,5 @@
 from sakura import Client
-from main import Serena
+from main import serena
 from main.database import *
 from pyrogram import filters, types, enums, errors
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
@@ -21,13 +21,13 @@ RAN_MSG = [
 ]
 
 # Fixed: Added missing closing parenthesis
-Serena = Client(
+sakuserena = Client(
     username=config.username,
     password=config.password,
     mongo=config.db_url
 )
 
-@Serena.on_message(filters.command("start") & filters.private)
+@serena.on_message(filters.command("start") & filters.private)
 async def start_command(client, message):
     text = (
         f"Hello {message.from_user.first_name}! ✨\n"
@@ -79,7 +79,7 @@ def admin_only(func):
                  return await func(client, message)
      return wrapped
 
-@Serena.on_message((filters.text | filters.sticker | filters.animation), group=2)
+@serena.on_message((filters.text | filters.sticker | filters.animation), group=2)
 async def serena_reply(client, message):
     reply_to = message.reply_to_message
     chat_id = message.chat.id
@@ -119,7 +119,7 @@ async def serena_reply(client, message):
         ai_reply = await ask_serena(chat_id, user.id, name, message.text)
         return await message.reply_text(text=ai_reply, quote=True)
 
-@Serena.on_message(filters.command('serena', prefixes=['.', '?', '/']))
+@serena.on_message(filters.command('serena', prefixes=['.', '?', '/']))
 @admin_only
 async def serena_mode(client, message):
       chat_id = message.chat.id
@@ -136,7 +136,7 @@ async def serena_mode(client, message):
       else:
          return await message.reply('Usage: `.serena on|off`')
 
-@Serena.on_message((filters.me | filters.user(developers)) & filters.command('chats', prefixes=['.', '?', '/']))
+@serena.on_message((filters.me | filters.user(developers)) & filters.command('chats', prefixes=['.', '?', '/']))
 async def get_serena_chats(client, message):
        chats = get_chats()
        filename = "SerenaChats.txt"
