@@ -1,8 +1,15 @@
+from main import serena
 
-import logging
+import pyrogram
 import asyncio
+import logging
+
+
+async def client():
+      await serena.start()
+      await pyrogram.idle()
         
 
 if __name__ == "__main__":
      log.info('Bot Started!')
-     asyncio.run(main())
+     serena.loop.run_until_complete(client())
