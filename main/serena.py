@@ -20,17 +20,17 @@ RAN_MSG = [
      "Please ask something else."
 ]
 
-# Fixed: Added missing closing parenthesis
+
 serena = Client(
     username=config.username,
     password=config.password,
     mongo=config.db_url
 )
 
-@pbot.on_message(filters.command("start") & filters.private)
+@pbot.on_message(filters.command("start"))
 async def start_command(client, message):
     text = (
-        f"Hello {message.from_user.first_name}! ✨\n"
+        f"Hello {message.from_user.mention}! ✨\n"
         "I am **Serena**, your advanced AI assistant.\n\n"
         "**Commands:**\n"
         "• `/serena on/off` - Enable/Disable me in groups."
@@ -39,12 +39,11 @@ async def start_command(client, message):
         [InlineKeyboardButton("Updates Channel 📢", url="https://t.me/nandhabots")],
         [InlineKeyboardButton("Add Me To Your Group ➕", url=f"https://t.me/{client.me.username}?startgroup=true")]
     ])
-    # Fixed: caption -> text
+
     await message.reply_text(text=text, reply_markup=buttons)
 
 async def serena_react(client, message):
      try:
-        # Fixed: Pyrogram reaction syntax
         await pbot.send_reaction(
             chat_id=message.chat.id,
             message_id=message.id,
@@ -134,21 +133,4 @@ async def serena_mode(client, message):
            set_chat_mode(chat_id=chat_id, chatname=chatname, mode=mode_val)
            return await message.reply(f'**Serena AI {key.upper()} in {chatname}.**')
       else:
-         return await message.reply('Usage: `.serena on|off`')
-
-@pbot.on_message((filters.me | filters.user(developers)) & filters.command('chats', prefixes=['.', '?', '/']))
-async def get_serena_chats(client, message):
-       chats = get_chats()
-       filename = "SerenaChats.txt"
-       text = f'❤️ Total Serena Chats: {len(chats)}\n\n'
-       
-       # Assuming get_chats returns a list or a specific structure based on your DB
-       for i, chat in enumerate(chats):
-           text += f"{i+1}. {chat.get('name')} - (`{chat.get('chat_id')}`): {chat.get('chat')}\n"
-           
-       with open(filename, 'w') as file:
-           file.write(text)
-           
-       await message.reply_document(document=filename, quote=True)
-       if os.path.exists(filename):
-           os.remove(filename)
+         return await message.reply('Usage: `/serena on|off`')
