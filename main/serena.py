@@ -60,7 +60,7 @@ async def ask_serena(message):
         else:
             return {'reply': '⚠️ Error connecting to AI.'}
     except Exception as e:
-         return (f"❌ {e}")
+         return {'reply': f"❌ {e}"}
 
 
 
