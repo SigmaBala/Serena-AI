@@ -94,7 +94,15 @@ async def serena_reply(client, message):
     chatname = message.chat.title if message.chat.title else (message.chat.first_name)
      
     # Logic for Mentions
-    is_mentioned = message.text and bool(re.search(r'serena|@serenaaichatbot', string=message.text, flags=re.IGNORECASE))
+    is_mentioned = bool(
+    re.search(
+        r'(?:^|\W)(?:serena|@serenaaichatbot)(?:\W|$)',
+        message.text,
+        flags=re.IGNORECASE
+    )
+)
+
+    #is_mentioned = message.text and bool(re.search(r'serena|@serenaaichatbot', string=message.text, flags=re.IGNORECASE))
     # Logic for Replies to Bot
     is_reply_to_bot = reply_to and reply_to.from_user and reply_to.from_user.id == config.serena_id
     
