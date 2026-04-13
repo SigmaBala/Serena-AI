@@ -85,32 +85,34 @@ def admin_only(func):
 
 
 
-@pbot.on_message(filters.text | filters.sticker | filters.animation, group=2)
+import random
+import re
+from pyrogram import filters, enums
+
+@pbot.on_message(
+    (filters.text | filters.caption | filters.sticker | filters.animation) & ~filters.bot,
+    group=2
+)
 async def serena_reply(client, message):
-    chat = message.chat
-    chat_id = chat.id
-    chat_name = chat.title or getattr(chat, "first_name", "Unknown")
-
+    chat_id = message.chat.id
+    chat_type = message.chat.type
+    chat_name = message.chat.title or getattr(message.chat, "first_name", "Unknown")
     reply_to = message.reply_to_message
-    sender = message.sender_chat or message.from_user
-    sender_name = (
-        message.sender_chat.title
-        if message.sender_chat
-        else getattr(message.from_user, "first_name", "User")
-    )
 
+    # Ignore Serena's own messages
+    if message.from_user and message.from_user.id == config.serena_id:
+        return
 
-  # Check whether Serena is enabled in this chat
     if not get_chat_mode(chat_id, chat_name):
         return
 
-    # Handle sticker / animation first
+    # Handle media first
     if message.sticker or message.animation:
         if message.sticker:
             try:
                 add_chat_sticker(chat_id=chat_id, sticker_id=message.sticker.file_id)
             except Exception as e:
-                print(f"Failed to save sticker: {e}")
+                print(f"Sticker save error: {e}")
 
         try:
             stickers = get_all_stickers()
@@ -118,47 +120,44 @@ async def serena_reply(client, message):
                 return await message.reply_sticker(random.choice(stickers))
         except Exception as e:
             print(f"Sticker reply error: {e}")
-
         return
 
-    # Handle text only after media
-    text = message.text or ""
+    text = (message.text or message.caption or "").strip()
 
-    is_mentioned = bool(
-        re.search(
-            r"(?:^|W)(?:serena|@serenaaichatbot)(?:W|$)",
-            text,
-            flags=re.IGNORECASE
-        )
-    )
+    # Match either plain 'serena' or @username mention
+    is_name_mention = bool(re.search(r"(?:^|W)serena(?:W|$)", text, re.IGNORECASE))
+    is_username_mention = bool(re.search(r"@serenaaichatbot\b", text, re.IGNORECASE))
 
     is_reply_to_bot = bool(
-        reply_to
-        and reply_to.from_user
-        and reply_to.from_user.id == config.serena_id
+        reply_to and reply_to.from_user and reply_to.from_user.id == config.serena_id
     )
 
     should_reply = (
-        chat.type == enums.ChatType.PRIVATE
-        or is_mentioned
+        chat_type == enums.ChatType.PRIVATE
+        or is_username_mention
+        or is_name_mention
         or is_reply_to_bot
     )
 
     if not should_reply:
         return
 
-    await client.send_chat_action(chat_id=chat_id, action=enums.ChatAction.TYPING)
-    await serena_react(client, message)
+    print(
+        f"[SERENA] chat={chat_id} type={chat_type} text={text!r} "
+        f"name_mention={is_name_mention} user_mention={is_username_mention} "
+        f"reply_to_bot={is_reply_to_bot}"
+    )
 
     try:
+        await client.send_chat_action(chat_id=chat_id, action=enums.ChatAction.TYPING)
+        await serena_react(client, message)
+
         ai_reply = await ask_serena(message)
         reply_text = ai_reply.get("reply", "I couldn't generate a reply.")
         return await message.reply_text(reply_text)
     except Exception as e:
         print(f"Serena reply error: {e}")
-        return await message.reply_text("Something went wrong while generating a reply.")
-        
-        
+        return await message.reply_text("Something went wrong while generating a reply.")        
 
 
 
