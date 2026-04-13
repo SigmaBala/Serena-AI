@@ -163,7 +163,7 @@ async def serena_reply(client, message):
 
 
 
-@pbot.on_message(filters.command('serena', prefixes=['.', '?', '/']))
+@pbot.on_message(filters.command('chatbot', prefixes=['.', '?', '/']))
 @admin_only
 async def serena_mode(client, message):
       chat_id = message.chat.id
