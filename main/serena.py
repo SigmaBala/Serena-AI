@@ -125,32 +125,49 @@ async def serena_reply(client, message):
     # =========================
     # 🧠 Text Processing
     # =========================
+    # 1. Basic Setup
+    reply_to = message.reply_to_message
+    chat_id = message.chat.id
+    chat_type = message.chat.type
+    
+    # Get text from message or caption
     text = (message.text or message.caption or "").strip()
     text_lower = text.lower()
+    
+    # Define bot details (Ensure these are in your config)
+    bot_username = "@serenaaichatbot" 
+    bot_name = "serena"
 
-    # 🔹 Simple detection (fast & reliable)
-    is_name_mention = "serena" in text_lower
-    is_username_mention = "@serenaaichatbot" in text_lower
+    # 2. 🔹 Detection Logic
+    
+    # Check if name is mentioned in plain text
+    is_name_mention = bot_name in text_lower
+    
+    # Check if @username is in plain text
+    is_username_mention = bot_username in text_lower
 
-    # 🔹 Telegram entity mention detection (best accuracy)
+    # 3. 🔹 Entity Detection (The most reliable for Telegram)
+    # We must check both .entities AND .caption_entities
     is_entity_mention = False
-    if message.entities:
-        for entity in message.entities:
-            if entity.type == "mention":
-                mention = text[entity.offset: entity.offset + entity.length].lower()
-                if mention == "@serenaaichatbot":
+    msg_entities = message.entities or message.caption_entities
+    
+    if msg_entities:
+        for entity in msg_entities:
+            if entity.type == enums.MessageEntityType.MENTION:
+                # Extract the actual mention string based on offset
+                mention_text = text[entity.offset : entity.offset + entity.length].lower()
+                if mention_text == bot_username:
                     is_entity_mention = True
+                    break
 
-    # 🔹 Reply to bot
-    is_reply_to_bot = bool(
-        reply_to
-        and reply_to.from_user
-        and reply_to.from_user.id == config.serena_id
-    )
+    # 4. 🔹 Reply to bot Detection
+    # Ensure IDs are compared as integers to avoid type mismatch
+    is_reply_to_bot = False
+    if reply_to and reply_to.from_user:
+        if int(reply_to.from_user.id) == int(config.serena_id):
+            is_reply_to_bot = True
 
-    # =========================
-    # 🚀 Decide to Reply
-    # =========================
+    # 5. 🚀 Decision Logic
     should_reply = (
         chat_type == enums.ChatType.PRIVATE
         or is_username_mention
@@ -159,31 +176,17 @@ async def serena_reply(client, message):
         or is_reply_to_bot
     )
 
-    if not should_reply:
-        return
-
+    # Logging for debugging
     print(
-        f"[SERENA] chat={chat_id} type={chat_type} text={text!r} "
-        f"name={is_name_mention} user={is_username_mention} "
-        f"entity={is_entity_mention} reply={is_reply_to_bot}"
+        f"[SERENA] chat={chat_id} | name_match={is_name_mention} | "
+        f"user_match={is_username_mention} | entity_match={is_entity_mention} | "
+        f"is_reply={is_reply_to_bot} | DECISION={should_reply}"
     )
 
-    # =========================
-    # 🤖 Generate Reply
-    # =========================
-    try:
-        await client.send_chat_action(chat_id, enums.ChatAction.TYPING)
-
-        await serena_react(client, message)
-
-        ai_reply = await ask_serena(message)
-        reply_text = ai_reply.get("reply", "I couldn't generate a reply.")
-
-        return await message.reply_text(reply_text)
-
-    except Exception as e:
-        print(f"Serena reply error: {e}")
-        return await message.reply_text("Something went wrong while generating a reply.")
+    if not should_reply:
+        return False
+    
+    return True
 
 
 
