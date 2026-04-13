@@ -10,6 +10,7 @@ import re
 import requests
 import os
 
+
 developers = [5696053228, 1666544436]
 
 
@@ -27,6 +28,7 @@ async def start_command(client, message):
     ])
 
     await message.reply_text(text=text, reply_markup=buttons)
+    
 
 async def serena_react(client, message):
      try:
@@ -37,6 +39,7 @@ async def serena_react(client, message):
         )
      except Exception:
           pass
+         
 
 async def ask_serena(message):
     messages = [
@@ -63,8 +66,6 @@ async def ask_serena(message):
          return {'reply': f"❌ {e}"}
 
 
-
-     
 def admin_only(func):
      async def wrapped(client, message):
          user_id = message.from_user.id
@@ -80,8 +81,6 @@ def admin_only(func):
             if user.privileges or user_id == config.serena_id or user_id in developers:
                  return await func(client, message)
      return wrapped
-
-
 
 
 @pbot.on_message((filters.text | filters.sticker | filters.animation), group=2)
@@ -124,10 +123,6 @@ async def serena_reply(client, message):
         ai_reply = await ask_serena(message)
         reply_text = ai_reply['reply']
         return await message.reply_text(reply_text)
-
-
-
-
 
 
 @pbot.on_message(filters.command('serena', prefixes=['.', '?', '/']))
