@@ -18,7 +18,7 @@ developers = [5696053228, 1666544436]
 async def start_command(client, message):
     text = (
         f"Hello {message.from_user.mention}! ✨\n"
-        "I'm **Serena**, advanced AI assistant."
+        "I'm **Serena**, advanced AI assistant.\n"
         "I'm here to help make things a little easier.\n\n"
         "**Commands:**\n"
         "• `/serena on/off` - Enable/Disable me in groups."
