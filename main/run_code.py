@@ -9,7 +9,6 @@ from main.serena import developers
 from pyrogram import filters, enums
 from pyrogram.errors import MessageTooLong
 
-developers = devs
 
 async def aexec(code, client, message):
     exec(
@@ -19,7 +18,7 @@ async def aexec(code, client, message):
     return await locals()["__aexec"](client, message)
 
 
-@pbot.on_message(filters.command('sh', prefixes=['.','?','/']) & filters.user(devs))
+@pbot.on_message(filters.command('sh', prefixes=['.','?','/']) & filters.user(developers))
 async def sh(_, message):
 
     await message.edit_text("Analyzing Code...")
@@ -50,7 +49,7 @@ async def sh(_, message):
                return await message.delete()
 
     
-@pbot.on_message(filters.command('e', prefixes=['.','?','/']) & filters.user(devs))
+@pbot.on_message(filters.command('e', prefixes=['.','?','/']) & filters.user(developers))
 async def eval(client, message):
 
     msg = await message.edit_text("Analyzing Code...")
