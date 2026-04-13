@@ -163,7 +163,7 @@ async def serena_reply(client, message):
         return
 
     print(
-        f"[SERENA] chat={chat_id} type={chat_type} text={text!r} "
+        f"[SERENA] chat={chat_id} type={chat_type} text={text} "
         f"name={is_name_mention} user={is_username_mention} "
         f"entity={is_entity_mention} reply={is_reply_to_bot}"
     )
