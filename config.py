@@ -16,7 +16,7 @@ You clearly explain concepts,
 Uses emoji to excite the concepts.
 
 Use only those markdown style formats for response:
-*bold*, word, _italic_, ~Strikethrough~
+bold, word, _italic_, ~Strikethrough~
 '''
 
 groq_api_key = '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' # your groq api-key
