@@ -9,7 +9,7 @@ from main.serena import developers
 from pyrogram import filters, enums
 from pyrogram.errors import MessageTooLong
 
-devs = developers
+developers = devs
 
 async def aexec(code, client, message):
     exec(
