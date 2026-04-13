@@ -112,7 +112,7 @@ async def serena_reply(client, message):
              try:
                  stickers = get_all_stickers()
                  if stickers:
-                    return await message.reply_sticker(sticker=random.choice(stickers), quote=True)
+                    return await message.reply_sticker(sticker=random.choice(stickers))
              except Exception as e:
                    print(f"Sticker Error: {e}")
              return
