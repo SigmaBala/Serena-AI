@@ -85,55 +85,80 @@ def admin_only(func):
 
 
 
-@pbot.on_message((filters.text | filters.sticker | filters.animation), group=2)
+@pbot.on_message(filters.text | filters.sticker | filters.animation, group=2)
 async def serena_reply(client, message):
+    chat = message.chat
+    chat_id = chat.id
+    chat_name = chat.title or getattr(chat, "first_name", "Unknown")
+
     reply_to = message.reply_to_message
-    chat_id = message.chat.id
-    user = message.sender_chat if message.sender_chat else message.from_user
-    name = message.sender_chat.title if message.sender_chat else message.from_user.first_name
-    chatname = message.chat.title if message.chat.title else (message.chat.first_name)
-     
-    # Logic for Mentions
-    is_mentioned = bool(
-    re.search(
-        r'(?:^|\W)(?:serena|@serenaaichatbot)(?:\W|$)',
-        message.text,
-        flags=re.IGNORECASE
+    sender = message.sender_chat or message.from_user
+    sender_name = (
+        message.sender_chat.title
+        if message.sender_chat
+        else getattr(message.from_user, "first_name", "User")
     )
-)
 
-    #is_mentioned = message.text and bool(re.search(r'serena|@serenaaichatbot', string=message.text, flags=re.IGNORECASE))
-    # Logic for Replies to Bot
-    is_reply_to_bot = reply_to and reply_to.from_user and reply_to.from_user.id == config.serena_id
-    
-    if (is_mentioned or is_reply_to_bot or message.chat.type == enums.ChatType.PRIVATE):
-        if message.from_user and (message.from_user.is_bot or message.from_user.id == config.serena_id):
-            return
 
-        is_serena_enabled = get_chat_mode(chat_id, chatname)
-        if not is_serena_enabled:
-             return
+  # Check whether Serena is enabled in this chat
+    if not get_chat_mode(chat_id, chat_name):
+        return
 
-        # Handle Stickers/Animations
-        if message.sticker or message.animation:
-             if message.sticker:
-                  add_chat_sticker(chat_id=chat_id, sticker_id=message.sticker.file_id)
-             try:
-                 stickers = get_all_stickers()
-                 if stickers:
-                    return await message.reply_sticker(sticker=random.choice(stickers))
-             except Exception as e:
-                   print(f"Sticker Error: {e}")
-             return
+    # Handle sticker / animation first
+    if message.sticker or message.animation:
+        if message.sticker:
+            try:
+                add_chat_sticker(chat_id=chat_id, sticker_id=message.sticker.file_id)
+            except Exception as e:
+                print(f"Failed to save sticker: {e}")
 
-        # Handle Text
-        await client.send_chat_action(chat_id=chat_id, action=enums.ChatAction.TYPING)
-        await serena_react(client, message)
+        try:
+            stickers = get_all_stickers()
+            if stickers:
+                return await message.reply_sticker(random.choice(stickers))
+        except Exception as e:
+            print(f"Sticker reply error: {e}")
 
+        return
+
+    # Handle text only after media
+    text = message.text or ""
+
+    is_mentioned = bool(
+        re.search(
+            r"(?:^|W)(?:serena|@serenaaichatbot)(?:W|$)",
+            text,
+            flags=re.IGNORECASE
+        )
+    )
+
+    is_reply_to_bot = bool(
+        reply_to
+        and reply_to.from_user
+        and reply_to.from_user.id == config.serena_id
+    )
+
+    should_reply = (
+        chat.type == enums.ChatType.PRIVATE
+        or is_mentioned
+        or is_reply_to_bot
+    )
+
+    if not should_reply:
+        return
+
+    await client.send_chat_action(chat_id=chat_id, action=enums.ChatAction.TYPING)
+    await serena_react(client, message)
+
+    try:
         ai_reply = await ask_serena(message)
-        reply_text = ai_reply['reply']
+        reply_text = ai_reply.get("reply", "I couldn't generate a reply.")
         return await message.reply_text(reply_text)
-
+    except Exception as e:
+        print(f"Serena reply error: {e}")
+        return await message.reply_text("Something went wrong while generating a reply.")
+        
+        
 
 
 
