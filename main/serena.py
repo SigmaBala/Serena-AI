@@ -20,7 +20,7 @@ async def start_command(client, message):
         "I am **Serena**, advanced AI assistant.\n"
         "I'm here to help make things a little easier.\n\n"
         "**Commands:**\n"
-        "• `/serena on/off` - Enable/Disable me in groups."
+        "• `/chatbot on/off` - Enable/Disable me in groups."
     )
     buttons = InlineKeyboardMarkup([
         [InlineKeyboardButton("Updates Channel 📢", url="https://t.me/nandhabots")],
@@ -202,4 +202,4 @@ async def serena_mode(client, message):
            set_chat_mode(chat_id=chat_id, chatname=chatname, mode=mode_val)
            return await message.reply(f'**Serena AI {key.upper()} in {chatname}.**')
       else:
-         return await message.reply('Usage: `/serena on|off`')
+         return await message.reply('Usage: `/chatbot on|off`')
