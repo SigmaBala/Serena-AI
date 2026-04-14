@@ -28,6 +28,7 @@ async def start_command(client, message):
     ])
 
     await message.reply_text(text=text, reply_markup=buttons)
+    
 
 async def serena_react(client, message):
      try:
@@ -38,6 +39,7 @@ async def serena_react(client, message):
         )
      except Exception:
           pass
+         
 
 async def ask_serena(message):
     messages = [
