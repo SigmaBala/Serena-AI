@@ -127,7 +127,15 @@ async def serena_reply(client, message):
         try:
             stickers = get_all_stickers()
             if stickers:
-                return await message.reply_sticker(random.choice(stickers))
+                chosen_sticker = random.choice(stickers)
+                
+                # If it's a Private Chat, send without quoting the user's message
+                if is_pm:
+                    return await client.send_sticker(chat_id, chosen_sticker)
+                
+                # If it's a group reply, use standard reply behavior
+                return await message.reply_sticker(chosen_sticker)
+                
         except Exception as e:
             print(f"Sticker reply error: {e}")
         return
