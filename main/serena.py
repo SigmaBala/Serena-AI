@@ -94,13 +94,23 @@ async def serena_reply(client, message):
     chat_id = message.chat.id
     chat_type = message.chat.type
     chat_name = message.chat.title or getattr(message.chat, "first_name", "Unknown")
-    reply_to = message.reply_to_message
-
-    # Ignore bot's own messages
+    
+    # 1. Ignore bot's own messages
     if message.from_user and message.from_user.id == config.serena_id:
         return
 
-    # Check if Serena is enabled in chat
+    # 2. Logic: Only reply if it's a Private Chat OR if someone is replying to the bot in a group
+    is_pm = (chat_type == "private")
+    is_reply_to_bot = (
+        message.reply_to_message and 
+        message.reply_to_message.from_user and 
+        message.reply_to_message.from_user.id == config.serena_id
+    )
+
+    if not (is_pm or is_reply_to_bot):
+        return
+
+    # 3. Check if Serena is enabled in chat
     if not get_chat_mode(chat_id, chat_name):
         return
 
