@@ -96,23 +96,11 @@ async def serena_reply(client, message):
     chat_name = message.chat.title or getattr(message.chat, "first_name", "Unknown")
     reply_to = message.reply_to_message
 
-    # 1. Ignore bot's own messages
+    # Ignore bot's own messages
     if message.from_user and message.from_user.id == config.serena_id:
         return
 
-    # 2. Check Conditions: 
-    # Must be Private OR (Group/Supergroup AND replying to the bot)
-    is_private = chat_type == "private"
-    is_reply_to_bot = (
-        reply_to and 
-        reply_to.from_user and 
-        reply_to.from_user.id == config.serena_id
-    )
-
-    if not (is_private or is_reply_to_bot):
-        return
-
-    # 3. Check if Serena is enabled in chat
+    # Check if Serena is enabled in chat
     if not get_chat_mode(chat_id, chat_name):
         return
 
@@ -153,7 +141,7 @@ async def serena_reply(client, message):
                 if mention == "@serenaaichatbot":
                     is_entity_mention = True
 
-
+    # 🔹 Reply to bot
     is_reply_to_bot = bool(
         reply_to
         and reply_to.from_user
@@ -175,7 +163,7 @@ async def serena_reply(client, message):
         return
 
     print(
-        f"[SERENA] chat={chat_id} type={chat_type} text={text} "
+        f"[SERENA] chat={chat_id} type={chat_type} text={text!r} "
         f"name={is_name_mention} user={is_username_mention} "
         f"entity={is_entity_mention} reply={is_reply_to_bot}"
     )
