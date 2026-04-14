@@ -153,7 +153,7 @@ async def serena_reply(client, message):
                 if mention == "@serenaaichatbot":
                     is_entity_mention = True
 
-    # 🔹 Reply to bot
+
     is_reply_to_bot = bool(
         reply_to
         and reply_to.from_user
