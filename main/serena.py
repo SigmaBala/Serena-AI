@@ -94,20 +94,22 @@ async def serena_reply(client, message):
     chat_id = message.chat.id
     chat_type = message.chat.type
     chat_name = message.chat.title or getattr(message.chat, "first_name", "Unknown")
-    
+    reply_to = message.reply_to_message
+
     # 1. Ignore bot's own messages
     if message.from_user and message.from_user.id == config.serena_id:
         return
 
-    # 2. Logic: Only reply if it's a Private Chat OR if someone is replying to the bot in a group
-    is_pm = (chat_type == "private")
+    # 2. Check Conditions: 
+    # Must be Private OR (Group/Supergroup AND replying to the bot)
+    is_private = chat_type == "private"
     is_reply_to_bot = (
-        message.reply_to_message and 
-        message.reply_to_message.from_user and 
-        message.reply_to_message.from_user.id == config.serena_id
+        reply_to and 
+        reply_to.from_user and 
+        reply_to.from_user.id == config.serena_id
     )
 
-    if not (is_pm or is_reply_to_bot):
+    if not (is_private or is_reply_to_bot):
         return
 
     # 3. Check if Serena is enabled in chat
@@ -127,15 +129,7 @@ async def serena_reply(client, message):
         try:
             stickers = get_all_stickers()
             if stickers:
-                chosen_sticker = random.choice(stickers)
-                
-                # If it's a Private Chat, send without quoting the user's message
-                if is_pm:
-                    return await client.send_sticker(chat_id, chosen_sticker)
-                
-                # If it's a group reply, use standard reply behavior
-                return await message.reply_sticker(chosen_sticker)
-                
+                return await message.reply_sticker(random.choice(stickers))
         except Exception as e:
             print(f"Sticker reply error: {e}")
         return
