@@ -1,2 +1,1 @@
-# AI
-Chat Bot AI
+# Serena AI
