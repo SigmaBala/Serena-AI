@@ -34,11 +34,11 @@ START_BUTTONS = InlineKeyboardMarkup([
 
 KB_BUTTONS = InlineKeyboardMarkup([
     [
-        InlineKeyboardButton("Add Me To Your Group ➕", url="https://t.me/SerenaAIChatBot?startgroup=true")
+        InlineKeyboardButton("Add Me To Your Group ➕", url="https://t.me/SerenaAIChatBot?startgroup=true", style=enums.ButtonStyle.PRIMARY)
     ],
     [
-        InlineKeyboardButton("Updates 📢", url="https://t.me/nandhabots"),
-        InlineKeyboardButton("About ℹ️", callback_data='about')
+        InlineKeyboardButton("Updates 📢", url="https://t.me/nandhabots", style=enums.ButtonStyle.PRIMARY),
+        InlineKeyboardButton("About ℹ️", callback_data='about', style=enums.ButtonStyle.PRIMARY)
     ]
 ])
 
