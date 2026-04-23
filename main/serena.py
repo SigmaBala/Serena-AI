@@ -33,10 +33,8 @@ async def start_command(client, message):
 
     # 2. Define the Inline Buttons
     buttons = InlineKeyboardMarkup([
-        [
-            InlineKeyboardButton("Add Me To Your Group ➕", url="https://t.me/nandhabots", style=enums.ButtonStyle.PRIMARY),
-            InlineKeyboardButton("Updates Channel 📢", url=f"https://t.me/{client.me.username}?startgroup=true"), style=enums.ButtonStyle.PRIMARY)
-        ]
+        [InlineKeyboardButton("Add Me To Your Group ➕", url="https://t.me/nandhabots", style=enums.ButtonStyle.PRIMARY)],
+        [InlineKeyboardButton("Updates Channel 📢", url=f"https://t.me/{client.me.username}?startgroup=true"), style=enums.ButtonStyle.PRIMARY)]
     ])
 
     text = (
