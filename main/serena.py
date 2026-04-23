@@ -207,53 +207,51 @@ async def serena_reply(client, message):
     # 🎯 Handle Media (Sticker/GIF)
     # =========================
     # Stickers only send if it's a PM OR if the user mentioned the bot in a group
+if message.sticker or message.animation:
     try:
+        # 1. Set action immediately
         await client.send_chat_action(chat_id, enums.ChatAction.CHOOSE_STICKER)
-    except Exception as e:
-        print(f"Chat action error: {e}")
-
-    # 2. Check for Sticker or Animation
-    if message.sticker or message.animation:
+        
         if message.sticker:
-            try:
-                add_chat_sticker(chat_id=chat_id, sticker_id=message.sticker.file_id)
-            except Exception as e:
-                print(f"Sticker save error: {e}")
+            add_chat_sticker(chat_id=chat_id, sticker_id=message.sticker.file_id)
 
-        # 3. Handle the Reply Logic
-        try:
-            stickers = get_all_stickers()
-            if stickers:
-                random_sticker = random.choice(stickers)
-                
-                # Logic for PM vs Group
-                if is_pm:
-                    return await client.send_sticker(chat_id, random_sticker)
-                else:
-                    return await message.reply_sticker(random_sticker)
-        except Exception as e:
-            print(f"Sticker reply error: {e}")
-        return
-
-    # =========================
-    # 🧠 AI Text Processing
-    # =========================
-    try:
-        await client.send_chat_action(chat_id, enums.ChatAction.TYPING)
-        await serena_react(client, message)
-
-        ai_reply = await ask_serena(message)
-        reply_text = ai_reply.get("reply", "I couldn't generate a reply.")
-
-        # In PM, send as a new message. In groups, reply to the user.
-        if is_pm:
-            return await client.send_message(chat_id, reply_text)
-        else:
-            return await message.reply_text(reply_text)
-
+        stickers = get_all_stickers()
+        if stickers:
+            random_sticker = random.choice(stickers)
+            
+            # Use specific method based on context
+            if is_pm:
+                return await client.send_sticker(chat_id, random_sticker)
+            return await message.reply_sticker(random_sticker)
+            
     except Exception as e:
-        print(f"Serena reply error: {e}")
-        return await message.reply_text("Something went wrong while generating a reply.")
+        print(f"Sticker processing error: {e}")
+    return
+
+# =========================
+# 🧠 AI Text Processing
+# =========================
+try:
+    # 2. Update action to TYPING for text responses
+    await client.send_chat_action(chat_id, enums.ChatAction.TYPING)
+    
+    await serena_react(client, message)
+
+    ai_reply = await ask_serena(message)
+    reply_text = ai_reply.get("reply", "I couldn't generate a reply.")
+
+    if is_pm:
+        return await client.send_message(chat_id, reply_text)
+    return await message.reply_text(reply_text)
+
+except Exception as e:
+    print(f"Serena reply error: {e}")
+  
+    error_msg = "Something went wrong while generating a reply."
+    if is_pm:
+        await client.send_message(chat_id, error_msg)
+    else:
+        await message.reply_text(error_msg)
 
 
 
