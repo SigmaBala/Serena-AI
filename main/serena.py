@@ -65,7 +65,7 @@ async def start_command(client, message):
 ABOUT_TEXT = """
 Hello! My name is **Serena AI**, and I'm an artificial intelligence designed to provide helpful and clear explanations. 
 
-As a conversational AI, I'm always ready to assist with any questions or topics you'd like to discuss, I aim to make complex concepts accessible and facilitate meaningful interactions.
+As a conversational AI, I'm always ready to assist with any questions or topics you'd like to discuss and i aim to make complex concepts accessible and facilitate meaningful interactions.
 """
 
 @pbot.on_callback_query(filters.regex("about"))
@@ -196,7 +196,7 @@ async def serena_reply(client, message):
                     await client.send_sticker(chat_id, random_sticker)
                 else:
                     await message.reply_sticker(random_sticker)
-            return  # <--- CRITICAL: Stop execution here so it doesn't "Type"
+            return
         except Exception as e:
             print(f"Sticker Error: {e}")
             return
