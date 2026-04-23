@@ -27,6 +27,13 @@ START_GIF = "https://www.image2url.com/r2/default/videos/1776914939431-33d60ca9-
         [InlineKeyboardButton("About ℹ️", callback_data='about', style=enums.ButtonStyle.PRIMARY)]
     ])
 
+    KB_BUTTONS = InlineKeyboardMarkup([
+        [InlineKeyboardButton("Add Me To Your Group ➕", url="https://t.me/nandhabots")],
+        [InlineKeyboardButton("Updates Channel 📢", url=f"https://t.me/{client.me.username}?startgroup=true")],
+        [InlineKeyboardButton("About ℹ️", callback_data='about')]
+    ])
+
+
 @pbot.on_message(filters.command("start"))
 async def start_command(client, message):
     chat_id = message.chat.id
@@ -62,7 +69,7 @@ Created by the team at @nandhabots, I aim to make complex concepts accessible an
 async def about(_, query: CallbackQuery):
     kb = InlineKeyboardMarkup([
         [InlineKeyboardButton("Source Code 📁", url="https://github.com/SigmaBala/Serena-AI")],
-        [InlineKeyboardButton("Back 🔙", callback_data="start_back")]
+        [InlineKeyboardButton("🔙 Back", callback_data="start_back")]
     ])
 
     await query.message.edit_caption(
@@ -81,7 +88,7 @@ async def back_to_start(_, query: CallbackQuery):
     
     await query.message.edit_caption(
         caption=text,
-        reply_markup=START_BUTTONS
+        reply_markup=KB_BUTTONS
     )
     
 
