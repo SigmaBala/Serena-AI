@@ -22,8 +22,8 @@ START_STICKERS = [
 START_GIF = "https://www.image2url.com/r2/default/videos/1776914939431-33d60ca9-688f-4fc3-aa76-984bf7116773.mp4"
 
 START_BUTTONS = InlineKeyboardMarkup([
-        [InlineKeyboardButton("Add Me To Your Group ➕",
-        [InlineKeyboardButton("Updates Channel 📢",
+        [InlineKeyboardButton("Add Me To Your Group ➕", url="https://t.me/SerenaAIChatBot?startgroup=true", style=enums.ButtonStyle.PRIMARY)],
+        [InlineKeyboardButton("Updates Channel 📢", url="https://t.me/nandhabots", style=enums.ButtonStyle.PRIMARY)],
         [InlineKeyboardButton("About ℹ️", callback_data='about', style=enums.ButtonStyle.PRIMARY)]
     ])
 
