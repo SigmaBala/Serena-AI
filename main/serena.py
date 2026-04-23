@@ -54,7 +54,7 @@ async def start_command(client, message):
         "• `/chatbot on/off` - Enable/Disable me in groups."
     )
 
-     await message.reply_animation(
+      await message.reply_animation(
         animation=START_GIF, 
         caption=text, 
         reply_markup=START_BUTTONS
