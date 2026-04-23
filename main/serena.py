@@ -19,8 +19,13 @@ START_STICKERS = [
   "CAACAgUAAxkBAAEBrWJnWulBrVl7pq-QRI1QCaMjd6laLAAC2RYAAojK2Va2m-0pJ2vqLzYE"
 ]
 
-start_gif = "https://www.image2url.com/r2/default/videos/1776914939431-33d60ca9-688f-4fc3-aa76-984bf7116773.mp4"
+START_GIF = "https://www.image2url.com/r2/default/videos/1776914939431-33d60ca9-688f-4fc3-aa76-984bf7116773.mp4"
 
+    START_BUTTONS = InlineKeyboardMarkup([
+        [InlineKeyboardButton("Add Me To Your Group ➕", url="https://t.me/nandhabots", style=enums.ButtonStyle.PRIMARY)],
+        [InlineKeyboardButton("Updates Channel 📢", url=f"https://t.me/{client.me.username}?startgroup=true", style=enums.ButtonStyle.PRIMARY)],
+        [InlineKeyboardButton("About ℹ️", callback_data='about', style=enums.ButtonStyle.PRIMARY)]
+    ])
 
 @pbot.on_message(filters.command("start"))
 async def start_command(client, message):
@@ -33,13 +38,6 @@ async def start_command(client, message):
     except Exception:
         pass
 
-  
-    START_BUTTONS = InlineKeyboardMarkup([
-        [InlineKeyboardButton("Add Me To Your Group ➕", url="https://t.me/nandhabots", style=enums.ButtonStyle.PRIMARY)],
-        [InlineKeyboardButton("Updates Channel 📢", url=f"https://t.me/{client.me.username}?startgroup=true", style=enums.ButtonStyle.PRIMARY)],
-        [InlineKeyboardButton("About ℹ️", callback_data='about', style=enums.ButtonStyle.PRIMARY)]
-    ])
-
     text = (
         f"Hello {message.from_user.mention}! ✨\n"
         "I am **Serena**, advanced AI assistant.\n"
@@ -48,19 +46,23 @@ async def start_command(client, message):
         "• `/chatbot on/off` - Enable/Disable me in groups."
     )
 
-    await message.reply_animation(animation=start_gif, caption=text, reply_markup=START_BUTTONS)
+await message.reply_animation(
+        animation=START_GIF, 
+        caption=text, 
+        reply_markup=START_BUTTONS
+    )
 
 ABOUT_TEXT = """
-Hello! My name is **Serena AI**, and I'm an artificial intelligence designed to provide helpful and clear explanations to individuals seeking knowledge. I was created by @nandhabots, a team of innovative developers dedicated to advancing AI technology.
+Hello! My name is **Serena AI**, and I'm an artificial intelligence designed to provide helpful and clear explanations. 
 
-As a conversational AI, I'm always ready to assist with any questions or topics you'd like to discuss. My primary goal is to make complex concepts more accessible and to facilitate meaningful interactions.
+Created by the team at @nandhabots, I aim to make complex concepts accessible and facilitate meaningful interactions.
 """
 
 @pbot.on_callback_query(filters.regex("about"))
 async def about(_, query: CallbackQuery):
     kb = InlineKeyboardMarkup([
         [InlineKeyboardButton("Source Code 📁", url="https://github.com/SigmaBala/Serena-AI")],
-        [InlineKeyboardButton("⬅️ Back", callback_data="start_back")]
+        [InlineKeyboardButton("Back 🔙", callback_data="start_back")]
     ])
 
     await query.message.edit_caption(
@@ -69,7 +71,7 @@ async def about(_, query: CallbackQuery):
     )
 
 @pbot.on_callback_query(filters.regex("start_back"))
-async def back_to_start(client, query: CallbackQuery):
+async def back_to_start(_, query: CallbackQuery):
     text = (
         f"Hello {query.from_user.mention}! ✨\n"
         "I am **Serena**, advanced AI assistant.\n\n"
