@@ -51,25 +51,29 @@ async def start_command(client, message):
     await message.reply_animation(animation=start_gif, caption=text, reply_markup=buttons)
 
 ABOUT_TEXT = """
-Hello! My name is Serena AI, and I'm an artificial intelligence designed to provide helpful and clear explanations to individuals seeking knowledge. I was created by @nandhabots, a team of innovative developers dedicated to advancing AI technology.
+Hello! My name is **Serena AI**, and I'm an artificial intelligence designed to provide helpful and clear explanations to individuals seeking knowledge. I was created by @nandhabots, a team of innovative developers dedicated to advancing AI technology.
 
 As a conversational AI, I'm always ready to assist with any questions or topics you'd like to discuss. My primary goal is to make complex concepts more accessible and to facilitate meaningful interactions.
 """
 
 @pbot.on_callback_query(filters.regex("about"))
 async def about(_, query: CallbackQuery):
-     await query.message.edit_caption(ABOUT_TEXT,
-                                      reply_markup=InlineKeyboardMarkup(kb),)
 
-     kb = InlineKeyboardMarkup(
+    kb = InlineKeyboardMarkup(
         [
-          [
-            InlineKeyboardButton(
-              "Source Code", 
-              url="https://github.com/SigmaBala/Serena-AI", style=enums.ButtonStyle.PRIMARY),
-          ],
+            [
+                InlineKeyboardButton(
+                    "Source Code", 
+                    url="https://github.com/SigmaBala/Serena-AI"
+                ),
+            ],
         ],
-     )
+    )
+
+    await query.message.edit_caption(
+        caption=ABOUT_TEXT,
+        reply_markup=kb
+    )
     
 
 async def serena_react(client, message):
