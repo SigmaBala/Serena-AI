@@ -36,7 +36,8 @@ async def start_command(client, message):
     # 2. Define the Inline Buttons
     buttons = InlineKeyboardMarkup([
         [InlineKeyboardButton("Add Me To Your Group ➕", url="https://t.me/nandhabots", style=enums.ButtonStyle.PRIMARY)],
-        [InlineKeyboardButton("Updates Channel 📢", url=f"https://t.me/{client.me.username}?startgroup=true", style=enums.ButtonStyle.PRIMARY)]
+        [InlineKeyboardButton("Updates Channel 📢", url=f"https://t.me/{client.me.username}?startgroup=true", style=enums.ButtonStyle.PRIMARY)],
+        [InlineKeyboardButton("About ℹ️", callback_data='about', style=enums.ButtonStyle.PRIMARY)]
     ])
 
     text = (
@@ -48,6 +49,27 @@ async def start_command(client, message):
     )
 
     await message.reply_animation(animation=start_gif, caption=text, reply_markup=buttons)
+
+ABOUT_TEXT = """
+Hello! My name is Serena AI, and I'm an artificial intelligence designed to provide helpful and clear explanations to individuals seeking knowledge. I was created by @nandhabots, a team of innovative developers dedicated to advancing AI technology.
+
+As a conversational AI, I'm always ready to assist with any questions or topics you'd like to discuss. My primary goal is to make complex concepts more accessible and to facilitate meaningful interactions.
+"""
+
+@bot.on_callback_query(filters.regex("about"))
+async def about(_, query: CallbackQuery):
+     await query.message.edit_caption(ABOUT_TEXT,
+                                      reply_markup=InlineKeyboardMarkup(kb),)
+
+     kb = InlineKeyboardMarkup(
+        [
+          [
+            InlineKeyboardButton(
+              "Source Code", 
+              url="https://github.com/SigmaBala/Serena-AI", style=enums.ButtonStyle.PRIMARY),
+          ],
+        ],
+     )
     
 
 async def serena_react(client, message):
@@ -187,6 +209,7 @@ async def serena_reply(client, message):
                     return await message.reply_sticker(random_sticker)
         except Exception as e:
             print(f"Sticker reply error: {e}")
+        return
 
     # =========================
     # 🧠 AI Text Processing
