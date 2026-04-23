@@ -79,7 +79,7 @@ async def back_to_start(client, query: CallbackQuery):
     
     await query.message.edit_caption(
         caption=text,
-        reply_markup=buttons
+        reply_markup=buttons()
     )
     
 
