@@ -23,14 +23,14 @@ START_GIF = "https://www.image2url.com/r2/default/videos/1776914939431-33d60ca9-
 
 START_BUTTONS = InlineKeyboardMarkup([
         [InlineKeyboardButton("Add Me To Your Group ➕", url="https://t.me/nandhabots", style=enums.ButtonStyle.PRIMARY)],
-        [InlineKeyboardButton("Updates Channel 📢", url=f"https://t.me/{client.me.username}?startgroup=true", style=enums.ButtonStyle.PRIMARY)],
+        [InlineKeyboardButton("Updates Channel 📢", url=f"https://t.me/SerenaAIChatBot?startgroup=true", style=enums.ButtonStyle.PRIMARY)],
         [InlineKeyboardButton("About ℹ️", callback_data='about', style=enums.ButtonStyle.PRIMARY)]
     ])
 
 
 KB_BUTTONS = InlineKeyboardMarkup([
-        [InlineKeyboardButton("Add Me To Your Group ➕", url="https://t.me/nandhabots")],
-        [InlineKeyboardButton("Updates Channel 📢", url=f"https://t.me/{client.me.username}?startgroup=true")],
+        [InlineKeyboardButton("Add Me To Your Group ➕", url=f"https://t.me/SerenaAIChatBot?startgroup=true")],
+        [InlineKeyboardButton("Updates Channel 📢", url="https://t.me/nandhabots")], 
         [InlineKeyboardButton("About ℹ️", callback_data='about')]
     ])
 
