@@ -47,7 +47,7 @@ async def start_command(client, message):
         "• `/chatbot on/off` - Enable/Disable me in groups."
     )
 
-    await message.reply_animation(animation="START_GIF", text=text, reply_markup=buttons)
+    await message.reply_animation(animation="START_GIF",caption=text, reply_markup=buttons)
     
 
 async def serena_react(client, message):
