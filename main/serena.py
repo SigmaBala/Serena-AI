@@ -32,17 +32,6 @@ START_BUTTONS = InlineKeyboardMarkup([
     ])
 
 
-KB_BUTTONS = InlineKeyboardMarkup([
-    [
-        InlineKeyboardButton("Add Me To Your Group ➕", url="https://t.me/SerenaAIChatBot?startgroup=true", style=enums.ButtonStyle.PRIMARY)
-    ],
-    [
-        InlineKeyboardButton("Updates 📢", url="https://t.me/nandhabots", style=enums.ButtonStyle.PRIMARY),
-        InlineKeyboardButton("About ℹ️", callback_data='about', style=enums.ButtonStyle.PRIMARY)
-    ]
-])
-
-
 @pbot.on_message(filters.command("start"))
 async def start_command(client, message):
     chat_id = message.chat.id
@@ -100,7 +89,7 @@ async def back_to_start(_, query: CallbackQuery):
     
     await query.message.edit_caption(
         caption=text,
-        reply_markup=KB_BUTTONS
+        reply_markup=START_BUTTONS
     )
     
 
