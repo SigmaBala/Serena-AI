@@ -34,7 +34,6 @@ KB_BUTTONS = InlineKeyboardMarkup([
         [InlineKeyboardButton("About ℹ️", callback_data='about')]
     ])
 
-
 @pbot.on_message(filters.command("start"))
 async def start_command(client, message):
     chat_id = message.chat.id
@@ -54,11 +53,13 @@ async def start_command(client, message):
         "• `/chatbot on/off` - Enable/Disable me in groups."
     )
 
-      await message.reply_animation(
+    
+    await message.reply_animation(
         animation=START_GIF, 
         caption=text, 
         reply_markup=START_BUTTONS
     )
+
 
 ABOUT_TEXT = """
 Hello! My name is **Serena AI**, and I'm an artificial intelligence designed to provide helpful and clear explanations. 
