@@ -65,7 +65,7 @@ async def start_command(client, message):
 ABOUT_TEXT = """
 Hello! My name is **Serena AI**, and I'm an artificial intelligence designed to provide helpful and clear explanations. 
 
-Created by the team at @nandhabots, I aim to make complex concepts accessible and facilitate meaningful interactions.
+As a conversational AI, I'm always ready to assist with any questions or topics you'd like to discuss, I aim to make complex concepts accessible and facilitate meaningful interactions.
 """
 
 @pbot.on_callback_query(filters.regex("about"))
@@ -84,7 +84,8 @@ async def about(_, query: CallbackQuery):
 async def back_to_start(_, query: CallbackQuery):
     text = (
         f"Hello {query.from_user.mention}! ✨\n"
-        "I am **Serena**, advanced AI assistant.\n\n"
+        "I am **Serena**, advanced AI assistant.\n"
+        "I'm here to help make things a little easier.\n\n"
         "**Commands:**\n"
         "• `/chatbot on/off` - Enable/Disable me in groups."
     )
