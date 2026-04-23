@@ -56,7 +56,7 @@ Hello! My name is Serena AI, and I'm an artificial intelligence designed to prov
 As a conversational AI, I'm always ready to assist with any questions or topics you'd like to discuss. My primary goal is to make complex concepts more accessible and to facilitate meaningful interactions.
 """
 
-@bot.on_callback_query(filters.regex("about"))
+@pbot.on_callback_query(filters.regex("about"))
 async def about(_, query: CallbackQuery):
      await query.message.edit_caption(ABOUT_TEXT,
                                       reply_markup=InlineKeyboardMarkup(kb),)
