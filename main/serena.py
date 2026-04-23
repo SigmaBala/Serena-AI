@@ -34,6 +34,7 @@ KB_BUTTONS = InlineKeyboardMarkup([
         [InlineKeyboardButton("About ℹ️", callback_data='about')]
     ])
 
+
 @pbot.on_message(filters.command("start"))
 async def start_command(client, message):
     chat_id = message.chat.id
