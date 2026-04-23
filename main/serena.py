@@ -203,11 +203,11 @@ async def serena_reply(client, message):
         if not get_chat_mode(chat_id, chat_name):
             return
 
-    # =========================
-    # 🎯 Handle Media (Sticker/GIF)
-    # =========================
-    # Stickers only send if it's a PM OR if the user mentioned the bot in a group
-    if message.sticker or message.animation:
+# =========================
+# 🎯 Handle Media (Sticker/GIF)
+# =========================
+# Stickers only send if it's a PM OR if the user mentioned the bot in a group
+if message.sticker or message.animation:
     try:
         # 1. Set action immediately
         await client.send_chat_action(chat_id, enums.ChatAction.CHOOSE_STICKER)
@@ -215,18 +215,26 @@ async def serena_reply(client, message):
         if message.sticker:
             add_chat_sticker(chat_id=chat_id, sticker_id=message.sticker.file_id)
 
+        # 2. Get stickers from database/list
         stickers = get_all_stickers()
+        
+        # Check if stickers list is not empty
         if stickers:
             random_sticker = random.choice(stickers)
             
-            # Use specific method based on context
+            # 3. Use specific method based on context
             if is_pm:
-                return await client.send_sticker(chat_id, random_sticker)
-            return await message.reply_sticker(random_sticker)
+                await client.send_sticker(chat_id, random_sticker)
+            else:
+                await message.reply_sticker(random_sticker)
             
+            return
+
     except Exception as e:
         print(f"Sticker processing error: {e}")
+    
     return
+  
 
 # =========================
 # 🧠 AI Text Processing
