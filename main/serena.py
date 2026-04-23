@@ -79,6 +79,13 @@ async def about(_, query: CallbackQuery):
 
 @pbot.on_callback_query(filters.regex("start_back"))
 async def back_to_start(_, query: CallbackQuery):
+    text = (
+        f"Hello {query.from_user.mention}! ✨\n"
+        "I am **Serena**, advanced AI assistant.\n"
+        "I'm here to help make things a little easier.\n\n"
+        "**Commands:**\n"
+        "• `/chatbot on/off` - Enable/Disable me in groups."
+    )
     
     await query.message.edit_caption(
         caption=text,
