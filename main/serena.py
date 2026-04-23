@@ -19,7 +19,7 @@ START_STICKERS = [
   "CAACAgUAAxkBAAEBrWJnWulBrVl7pq-QRI1QCaMjd6laLAAC2RYAAojK2Va2m-0pJ2vqLzYE"
 ]
 
-start_gif = "https://graph.org/file/85e65eeb0c23bfe0ac19d-2f376b6c757f254db2.mp4"
+start_gif = "https://www.image2url.com/r2/default/videos/1776914939431-33d60ca9-688f-4fc3-aa76-984bf7116773.mp4"
 
 
 @pbot.on_message(filters.command("start"))
