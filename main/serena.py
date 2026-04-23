@@ -19,7 +19,7 @@ START_STICKERS = [
   "CAACAgUAAxkBAAEBrWJnWulBrVl7pq-QRI1QCaMjd6laLAAC2RYAAojK2Va2m-0pJ2vqLzYE"
 ]
 
-START_GIF = "CgACAgUAAx0CZEWBuAACZFRp6YfJzOKMFhB_lsU3fAxAiOO-rgAC0xkAAqGiSFdKKNsLObG4kTsE"
+start_gif = "CgACAgUAAx0CZEWBuAACZFRp6YfJzOKMFhB_lsU3fAxAiOO-rgAC0xkAAqGiSFdKKNsLObG4kTsE"
 
 
 @pbot.on_message(filters.command("start"))
@@ -47,7 +47,7 @@ async def start_command(client, message):
         "• `/chatbot on/off` - Enable/Disable me in groups."
     )
 
-    await message.reply_animation(animation="START_GIF",caption=text, reply_markup=buttons)
+    await message.reply_animation(animation="start_gif",caption=text, reply_markup=buttons)
     
 
 async def serena_react(client, message):
