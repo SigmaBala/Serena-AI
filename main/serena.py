@@ -2,7 +2,7 @@
 from main import pbot
 from main.database import *
 from pyrogram import filters, types, enums, errors
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 
 import config
 import random
