@@ -13,6 +13,13 @@ import os
 developers = [5696053228, 1666544436]
 
 
+START_STICKERS = [
+  "CAACAgUAAxkBAAEBrV9nWukpft8gmtrZVMkbO4GKlZy0HQACWxUAAnHv2FZkjr7WjG3OjzYE",
+  "CAACAgIAAx0CZEWBuAACY1Vp5HITx1GrYTA6UcS09fEySVjoewACXxcAAjqz6UmnEUA60wg8cDsE",
+  "CAACAgUAAxkBAAEBrWJnWulBrVl7pq-QRI1QCaMjd6laLAAC2RYAAojK2Va2m-0pJ2vqLzYE"
+]
+
+
 @pbot.on_message(filters.command("start"))
 async def start_command(client, message):
     text = (
