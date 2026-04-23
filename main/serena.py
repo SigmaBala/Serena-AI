@@ -22,6 +22,23 @@ START_STICKERS = [
 
 @pbot.on_message(filters.command("start"))
 async def start_command(client, message):
+    chat_id = message.chat.id
+    try:
+        await client.send_sticker(
+            chat_id=chat_id,
+            sticker=random.choice(START_STICKERS)
+        )
+    except Exception:
+        pass
+
+    # 2. Define the Inline Buttons
+    buttons = InlineKeyboardMarkup([
+        [
+            InlineKeyboardButton("Add Me To Your Group ➕", url="https://t.me/nandhabots", style=enums.ButtonStyle.PRIMARY),
+            InlineKeyboardButton("Updates Channel 📢", url=f"https://t.me/{client.me.username}?startgroup=true"), style=enums.ButtonStyle.PRIMARY)
+        ]
+    ])
+
     text = (
         f"Hello {message.from_user.mention}! ✨\n"
         "I am **Serena**, advanced AI assistant.\n"
@@ -29,10 +46,6 @@ async def start_command(client, message):
         "**Commands:**\n"
         "• `/chatbot on/off` - Enable/Disable me in groups."
     )
-    buttons = InlineKeyboardMarkup([
-        [InlineKeyboardButton("Updates Channel 📢", url="https://t.me/nandhabots")],
-        [InlineKeyboardButton("Add Me To Your Group ➕", url=f"https://t.me/{client.me.username}?startgroup=true")]
-    ])
 
     await message.reply_text(text=text, reply_markup=buttons)
     
