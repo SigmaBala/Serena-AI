@@ -34,7 +34,7 @@ async def start_command(client, message):
         pass
 
   
-    buttons = InlineKeyboardMarkup([
+    START_BUTTONS = InlineKeyboardMarkup([
         [InlineKeyboardButton("Add Me To Your Group ➕", url="https://t.me/nandhabots", style=enums.ButtonStyle.PRIMARY)],
         [InlineKeyboardButton("Updates Channel 📢", url=f"https://t.me/{client.me.username}?startgroup=true", style=enums.ButtonStyle.PRIMARY)],
         [InlineKeyboardButton("About ℹ️", callback_data='about', style=enums.ButtonStyle.PRIMARY)]
@@ -48,7 +48,7 @@ async def start_command(client, message):
         "• `/chatbot on/off` - Enable/Disable me in groups."
     )
 
-    await message.reply_animation(animation=start_gif, caption=text, reply_markup=buttons)
+    await message.reply_animation(animation=start_gif, caption=text, reply_markup=START_BUTTONS)
 
 ABOUT_TEXT = """
 Hello! My name is **Serena AI**, and I'm an artificial intelligence designed to provide helpful and clear explanations to individuals seeking knowledge. I was created by @nandhabots, a team of innovative developers dedicated to advancing AI technology.
@@ -79,7 +79,7 @@ async def back_to_start(client, query: CallbackQuery):
     
     await query.message.edit_caption(
         caption=text,
-        reply_markup=buttons()
+        reply_markup=START_BUTTONS
     )
     
 
