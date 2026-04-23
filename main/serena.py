@@ -162,7 +162,11 @@ async def serena_reply(client, message):
     # =========================
     # Stickers only send if it's a PM OR if the user mentioned the bot in a group
     try:
-        await client.send_chat_action(chat_id, enums.ChatAction.SendMessageChooseStickerAction)
+        await client.send_chat_action(chat_id, enums.ChatAction.CHOOSE_STICKER)
+    except Exception as e:
+        print(f"Chat action error: {e}")
+
+    # 2. Check for Sticker or Animation
     if message.sticker or message.animation:
         if message.sticker:
             try:
@@ -170,17 +174,19 @@ async def serena_reply(client, message):
             except Exception as e:
                 print(f"Sticker save error: {e}")
 
+        # 3. Handle the Reply Logic
         try:
             stickers = get_all_stickers()
             if stickers:
-                # Use .send_sticker instead of .reply_sticker for PMs as requested
+                random_sticker = random.choice(stickers)
+                
+                # Logic for PM vs Group
                 if is_pm:
-                    return await client.send_sticker(chat_id, random.choice(stickers))
+                    return await client.send_sticker(chat_id, random_sticker)
                 else:
-                    return await message.reply_sticker(random.choice(stickers))
+                    return await message.reply_sticker(random_sticker)
         except Exception as e:
             print(f"Sticker reply error: {e}")
-        return
 
     # =========================
     # 🧠 AI Text Processing
