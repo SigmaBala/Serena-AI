@@ -161,6 +161,8 @@ async def serena_reply(client, message):
     # 🎯 Handle Media (Sticker/GIF)
     # =========================
     # Stickers only send if it's a PM OR if the user mentioned the bot in a group
+    try:
+        await client.send_chat_action(chat_id, enums.SendMessageChooseStickerAction)
     if message.sticker or message.animation:
         if message.sticker:
             try:
