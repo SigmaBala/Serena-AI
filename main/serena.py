@@ -33,7 +33,7 @@ async def start_command(client, message):
     except Exception:
         pass
 
-    # 2. Define the Inline Buttons
+  
     buttons = InlineKeyboardMarkup([
         [InlineKeyboardButton("Add Me To Your Group ➕", url="https://t.me/nandhabots", style=enums.ButtonStyle.PRIMARY)],
         [InlineKeyboardButton("Updates Channel 📢", url=f"https://t.me/{client.me.username}?startgroup=true", style=enums.ButtonStyle.PRIMARY)],
@@ -58,21 +58,28 @@ As a conversational AI, I'm always ready to assist with any questions or topics 
 
 @pbot.on_callback_query(filters.regex("about"))
 async def about(_, query: CallbackQuery):
-
-    kb = InlineKeyboardMarkup(
-        [
-            [
-                InlineKeyboardButton(
-                    "Source Code", 
-                    url="https://github.com/SigmaBala/Serena-AI"
-                ),
-            ],
-        ],
-    )
+    kb = InlineKeyboardMarkup([
+        [InlineKeyboardButton("Source Code 📁", url="https://github.com/SigmaBala/Serena-AI")],
+        [InlineKeyboardButton("⬅️ Back", callback_data="start_back")]
+    ])
 
     await query.message.edit_caption(
         caption=ABOUT_TEXT,
         reply_markup=kb
+    )
+
+@pbot.on_callback_query(filters.regex("start_back"))
+async def back_to_start(client, query: CallbackQuery):
+    text = (
+        f"Hello {query.from_user.mention}! ✨\n"
+        "I am **Serena**, advanced AI assistant.\n\n"
+        "**Commands:**\n"
+        "• `/chatbot on/off` - Enable/Disable me in groups."
+    )
+    
+    await query.message.edit_caption(
+        caption=text,
+        reply_markup=buttons
     )
     
 
