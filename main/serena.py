@@ -151,8 +151,6 @@ def admin_only(func):
      return wrapped
 
 
-
-
 @pbot.on_message(
     (filters.text | filters.caption | filters.sticker | filters.animation) & ~filters.bot,
     group=2
@@ -163,81 +161,50 @@ async def serena_reply(client, message):
     chat_name = message.chat.title or getattr(message.chat, "first_name", "Unknown")
     reply_to = message.reply_to_message
 
-    # Ignore bot's own messages
     if message.from_user and message.from_user.id == config.serena_id:
         return
 
-    # =========================
-    # 🚀 Decide to Reply (Mention Logic)
-    # =========================
+    # Mention Logic
     text = (message.text or message.caption or "").strip()
     text_lower = text.lower()
-
-    is_name_mention = "serena" in text_lower
-    is_username_mention = f"@{client.me.username.lower()}" in text_lower
-    
-    is_entity_mention = False
-    if message.entities:
-        for entity in message.entities:
-            if entity.type == enums.MessageEntityType.MENTION:
-                mention = text[entity.offset: entity.offset + entity.length].lower()
-                if mention == f"@{client.me.username.lower()}":
-                    is_entity_mention = True
-
-    is_reply_to_bot = bool(
-        reply_to
-        and reply_to.from_user
-        and reply_to.from_user.id == config.serena_id
-    )
-
-    # Main trigger logic
     is_pm = chat_type == enums.ChatType.PRIVATE
-    is_mentioned = is_username_mention or is_entity_mention or is_name_mention or is_reply_to_bot
+    is_mentioned = ("serena" in text_lower or 
+                    f"@{client.me.username.lower()}" in text_lower or 
+                    (reply_to and reply_to.from_user and reply_to.from_user.id == config.serena_id))
 
-    # If it's a group and no mention occurred, ignore everything
     if not is_pm and not is_mentioned:
         return
 
-    # Check database ONLY for groups (PM works without enabling)
-    if not is_pm:
-        if not get_chat_mode(chat_id, chat_name):
-            return
+    if not is_pm and not get_chat_mode(chat_id, chat_name):
+        return
 
     # =========================
     # 🎯 Handle Media (Sticker/GIF)
     # =========================
-    # 1. Stickers only send if it's a PM OR if the user mentioned the bot in a group
-    try:
-        await client.send_chat_action(chat_id, enums.ChatAction.CHOOSE_STICKER)
-    except Exception as e:
-        print(f"Chat action error: {e}")
-
-    # 2. Check for Sticker or Animation
     if message.sticker or message.animation:
-        if message.sticker:
-            try:
-                add_chat_sticker(chat_id=chat_id, sticker_id=message.sticker.file_id)
-            except Exception as e:
-                print(f"Sticker save error: {e}")
-
-        # 3. Handle the Reply Logic
         try:
+            # Set action ONLY for stickers here
+            await client.send_chat_action(chat_id, enums.ChatAction.CHOOSE_STICKER)
+            
+            if message.sticker:
+                add_chat_sticker(chat_id=chat_id, sticker_id=message.sticker.file_id)
+
             stickers = get_all_stickers()
             if stickers:
                 random_sticker = random.choice(stickers)
-                
-                # Logic for PM vs Group
                 if is_pm:
-                    return await client.send_sticker(chat_id, random_sticker)
+                    await client.send_sticker(chat_id, random_sticker)
                 else:
-                    return await message.reply_sticker(random_sticker)
+                    await message.reply_sticker(random_sticker)
+            return  # <--- CRITICAL: Stop execution here so it doesn't "Type"
         except Exception as e:
-            print(f"Sticker reply error: {e}")
-        return
+            print(f"Sticker Error: {e}")
+            return
 
     # =========================
     # 🧠 AI Text Processing
     # =========================
+    # If the code reaches here, it's definitely text, not a sticker.
     try:
         await client.send_chat_action(chat_id, enums.ChatAction.TYPING)
         await serena_react(client, message)
@@ -245,16 +212,14 @@ async def serena_reply(client, message):
         ai_reply = await ask_serena(message)
         reply_text = ai_reply.get("reply", "I couldn't generate a reply.")
 
-        # In PM, send as a new message. In groups, reply to the user.
         if is_pm:
-            return await client.send_message(chat_id, reply_text)
+            await client.send_message(chat_id, reply_text)
         else:
-            return await message.reply_text(reply_text)
+            await message.reply_text(reply_text)
 
     except Exception as e:
         print(f"Serena reply error: {e}")
-        return await message.reply_text("Something went wrong while generating a reply.")
-    return
+
 
 
 
