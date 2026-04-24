@@ -1,6 +1,7 @@
 
 from main import pbot
 from main.database import *
+from pyrogram.enums import ChatType
 from pyrogram import filters, types, enums, errors
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
 
@@ -35,18 +36,18 @@ START_BUTTONS = InlineKeyboardMarkup([
 @pbot.on_message(filters.command("start"))
 async def start_command(client, message):
     if message.chat.type == ChatType.PRIVATE:
-    chat_id = message.chat.id
-    try:
-        await client.send_sticker(
-            chat_id=chat_id,
-            sticker=random.choice(START_STICKERS)
-        )
-        add_user(message.from_user.id)
+        chat_id = message.chat.id
+        try:
+            await client.send_sticker(
+                chat_id=chat_id,
+                sticker=random.choice(START_STICKERS)
+            )
+            add_user(message.from_user.id)
+        except Exception as e:
+            print(f"Error: {e}")
     else:
         pm_msg = "I Already Awake!  ( • ̀ω•́  )"
         await message.reply_text(pm_msg)
-    except Exception:
-        pass
 
     text = (
         f"Hello {message.from_user.mention}! ✨\n"
