@@ -18,3 +18,22 @@ Easily enable or disable the chatbot anytime in group.
 
 • 🤖 Interactive AI Experience
 Smooth, human-like, and intelligent conversations.
+
+# 📢 Commands
+
+Command Description
+/start  Start the bot 
+/on     Enable ChatBot in group (Only works on group)
+/off    Disable ChatBot in group (Only works on group)
+
+# 🤝 Contributing
+
+Contributions are welcome!
+Feel free to fork the repo and submit a pull request.
+
+# ⚙️ Installation
+
+git clone https://github.com/sigmabala/serena-ai.git
+cd serena-ai
+pip install -r requirements.txt
+python3 -m main
