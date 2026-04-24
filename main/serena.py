@@ -34,6 +34,7 @@ START_BUTTONS = InlineKeyboardMarkup([
 
 @pbot.on_message(filters.command("start"))
 async def start_command(client, message):
+    if message.chat.type == ChatType.PRIVATE:
     chat_id = message.chat.id
     try:
         await client.send_sticker(
@@ -41,6 +42,9 @@ async def start_command(client, message):
             sticker=random.choice(START_STICKERS)
         )
         add_user(message.from_user.id)
+    else:
+        pm_msg = "I Already Awake!  ( • ̀ω•́  )"
+        await message.reply_text(pm_msg)
     except Exception:
         pass
 
@@ -226,7 +230,6 @@ async def serena_reply(client, message):
 async def serena_mode(client, message):
       chat_id = message.chat.id
       modes = {'on': True, 'off': False}
-      add_group(message.chat.id)
       
       args = message.text.split()
       if len(args) == 2 and args[1].lower() in modes:
@@ -238,3 +241,14 @@ async def serena_mode(client, message):
            return await message.reply(f'**Serena AI {key.upper()} in {chatname}.**')
       else:
          return await message.reply('Usage: `/chatbot on|off`')
+
+
+@pbot.on_message(filters.new_chat_members)
+async def new_chat(_, message):
+    bot_id = (await bot.get_me()).id
+    add_group(message.chat.id)
+    for member in message.new_chat_members:
+        if member.id == bot_id:
+            await message.reply(
+                "🙋‍♂️ Thanks for adding me !"
+            )
