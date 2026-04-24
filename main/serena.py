@@ -54,7 +54,7 @@ async def start_command(client, message):
         "I am **Serena**, advanced AI assistant.\n"
         "I'm here to help make things a little easier.\n\n"
         "**Commands:**\n"
-        "• `/chatbot on/off` - Enable/Disable me in groups. ( Only in Groups )"
+        "• `/chatbot on/off` - Enable/Disable me in groups."
     )
 
     
@@ -90,7 +90,7 @@ async def back_to_start(_, query: CallbackQuery):
         "I am **Serena**, advanced AI assistant.\n"
         "I'm here to help make things a little easier.\n\n"
         "**Commands:**\n"
-        "• `/chatbot on/off` - Enable/Disable me in groups. ( Only in Groups )"
+        "• `/chatbot on/off` - Enable/Disable me in groups."
     )
     
     await query.message.edit_caption(
@@ -246,7 +246,7 @@ async def serena_mode(client, message):
 
 @pbot.on_message(filters.new_chat_members)
 async def new_chat(_, message):
-    bot_id = (await bot.get_me()).id
+    bot_id = (await pbot.get_me()).id
     add_group(message.chat.id)
     for member in message.new_chat_members:
         if member.id == bot_id:
