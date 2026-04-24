@@ -23,7 +23,7 @@ START_GIF = "https://www.image2url.com/r2/default/videos/1776914939431-33d60ca9-
 
 START_BUTTONS = InlineKeyboardMarkup([
         [
-          InlineKeyboardButton("Add Me To Your Group ➕", url="https://t.me/SerenaAIChatBot?startgroup=true", style=enums.ButtonStyle.PRIMARY)
+          InlineKeyboardButton("Add Me To Your Group ➕", url="https://t.me/SerenaAIChatBot?startgroup=true", style=enums.ButtonStyle.DANGER)
         ],
         [
           InlineKeyboardButton("Updates Channel 📢", url="https://t.me/nandhabots", style=enums.ButtonStyle.PRIMARY),
@@ -68,8 +68,8 @@ As a conversational AI, I'm always ready to assist with any questions or topics 
 @pbot.on_callback_query(filters.regex("about"))
 async def about(_, query: CallbackQuery):
     kb = InlineKeyboardMarkup([
-        [InlineKeyboardButton("Source Code 📁", url="https://github.com/SigmaBala/Serena-AI")],
-        [InlineKeyboardButton("🔙 Back", callback_data="start_back")]
+        [InlineKeyboardButton("Source Code 📁", url="https://github.com/SigmaBala/Serena-AI", style=enums.ButtonStyle.DANGER)],
+        [InlineKeyboardButton("🔙 Back", callback_data="start_back", style=enums.ButtonStyle.PRIMARY)]
     ])
 
     await query.message.edit_caption(
