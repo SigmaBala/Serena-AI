@@ -40,6 +40,7 @@ async def start_command(client, message):
             chat_id=chat_id,
             sticker=random.choice(START_STICKERS)
         )
+        add_user(message.from_user.id)
     except Exception:
         pass
 
@@ -48,7 +49,7 @@ async def start_command(client, message):
         "I am **Serena**, advanced AI assistant.\n"
         "I'm here to help make things a little easier.\n\n"
         "**Commands:**\n"
-        "• `/chatbot on/off` - Enable/Disable me in groups."
+        "• `/chatbot on/off` - Enable/Disable me in groups. ( Only in Groups )"
     )
 
     
@@ -84,7 +85,7 @@ async def back_to_start(_, query: CallbackQuery):
         "I am **Serena**, advanced AI assistant.\n"
         "I'm here to help make things a little easier.\n\n"
         "**Commands:**\n"
-        "• `/chatbot on/off` - Enable/Disable me in groups."
+        "• `/chatbot on/off` - Enable/Disable me in groups. ( Only in Groups )"
     )
     
     await query.message.edit_caption(
@@ -225,6 +226,7 @@ async def serena_reply(client, message):
 async def serena_mode(client, message):
       chat_id = message.chat.id
       modes = {'on': True, 'off': False}
+      add_group(message.chat.id)
       
       args = message.text.split()
       if len(args) == 2 and args[1].lower() in modes:
