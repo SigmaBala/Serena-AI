@@ -2,6 +2,7 @@ from main import mongodb
 
 db = mongodb['chats']
 users = mongodb['users']
+groups = mongodb['groups']
 
 def set_chat_mode(chat_id: int, chatname, mode):
      chat = {'chat_id': chat_id}
@@ -93,3 +94,23 @@ def all_users():
     user = users.find({})
     usrs = len(list(user))
     return usrs
+
+
+def already_dbg(chat_id):
+        group = groups.find_one({"chat_id" : str(chat_id)})
+        if not group:
+            return False
+        return True
+
+
+def add_group(chat_id):
+    in_db = already_dbg(chat_id)
+    if in_db:
+        return
+    return groups.insert_one({"chat_id": str(chat_id)})
+
+
+def all_groups():
+    group = groups.find({})
+    grps = len(list(group))
+    return grps
