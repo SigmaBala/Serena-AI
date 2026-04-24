@@ -2,7 +2,7 @@
 
 Meet Serena AI, the ultimate Telegram chatbot designed to deliver fast, intelligent, and engaging conversations. Whether you're looking for fun interactions or a powerful AI assistant, Serena AI enhances your chat experience like never before.
 
-✨ Features
+# ✨ Features
 
 • ⚡ Ultra-Fast Responses
 Get instant replies with optimized performance.
@@ -18,13 +18,6 @@ Easily enable or disable the chatbot anytime in group.
 
 • 🤖 Interactive AI Experience
 Smooth, human-like, and intelligent conversations.
-
-# 📢 Commands
-
-Command Description
-/start  Start the bot 
-/on     Enable ChatBot in group (Only works on group)
-/off    Disable ChatBot in group (Only works on group)
 
 # 🤝 Contributing
 
