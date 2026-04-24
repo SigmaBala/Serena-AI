@@ -3,7 +3,7 @@ from pyrogram.types import Message
 from pyrogram import filters, errors, enums
 from main import pbot
 from pyrogram.errors.exceptions.flood_420 import FloodWait
-from main.database.user_db import add_user, add_group, all_users, all_groups, users, groups, remove_user
+from main.database import *
 import asyncio
 
 @pbot.on_message(filters.command(["stats", "users"], ["/", "!", ".", "?"]))
