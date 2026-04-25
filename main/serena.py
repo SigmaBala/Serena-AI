@@ -134,7 +134,6 @@ async def ask_serena(message):
 
      
 def admin_only(func):
-    @wraps(func)
     async def wrapped(client, message):
         user_id = message.from_user.id
         chat_id = message.chat.id
@@ -159,7 +158,7 @@ def admin_only(func):
         except Exception as e:
             print(f"Error in admin_only: {e}")
             
-    return wrapped
+    return
 
 
 @pbot.on_message(
