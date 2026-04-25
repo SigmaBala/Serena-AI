@@ -3,7 +3,6 @@ import pyrogram
 import config
 import pymongo
 import logging
-import aiohttp
 
 
 FORMAT = f"[{config.name}] %(message)s"
