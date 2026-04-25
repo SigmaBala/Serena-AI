@@ -97,10 +97,3 @@ async def sh(client, message):
               with io.BytesIO(str.encode(string)) as out_file:
                  out_file.name = "shell.text"
                  await message.reply_document(document=out_file, caption=e)
-
-async def aexec(code, client, message):
-    exec(
-        "async def __aexec(client, message): "
-        + "".join(f"\n {l_}" for l_ in code.split("\n"))
-    )
-    return await locals()["__aexec"](client, message)
