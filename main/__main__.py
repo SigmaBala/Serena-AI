@@ -1,7 +1,6 @@
 from main import pbot
 
 import pyrogram
-import asyncio
 import logging
 
 
