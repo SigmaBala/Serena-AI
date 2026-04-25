@@ -11,8 +11,6 @@ import re
 import requests
 import os
 
-developers = [5696053228, 1666544436]
-
 
 START_STICKERS = [
   "CAACAgUAAxkBAAEBrV9nWukpft8gmtrZVMkbO4GKlZy0HQACWxUAAnHv2FZkjr7WjG3OjzYE",
@@ -147,7 +145,7 @@ def admin_only(func):
             except errors.ChatAdminRequired:
                  return await message.reply_text("**Hello, Make me Admin to activate & deactivate assistant 🥰**")
             
-            if user.privileges or user_id == config.serena_id or user_id in developers:
+            if user.privileges or user_id == config.serena_id or user_id == config.developers:
                  return await func(client, message)
      return wrapped
 
