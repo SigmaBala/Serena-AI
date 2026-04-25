@@ -158,7 +158,7 @@ def admin_only(func):
         except Exception as e:
             print(f"Error in admin_only: {e}")
             
-    return
+    return wrapped
 
 
 @pbot.on_message(
