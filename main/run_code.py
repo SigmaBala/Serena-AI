@@ -97,3 +97,4 @@ async def sh(client, message):
               with io.BytesIO(str.encode(string)) as out_file:
                  out_file.name = "shell.text"
                  await message.reply_document(document=out_file, caption=e)
+                  
