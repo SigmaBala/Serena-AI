@@ -260,6 +260,7 @@ async def new_chat(_, message):
             await message.reply(ADD_TEXT)
 
 ADD_TEXT = """
-🙋‍♂️ Thanks for adding me !/n
+🙋‍♂️ Thanks for adding me !
+
 Use `/chatbot on` to keep chatting me ❤️
 """
