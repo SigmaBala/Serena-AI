@@ -257,7 +257,9 @@ async def new_chat(_, message):
     add_group(message.chat.id)
     for member in message.new_chat_members:
         if member.id == bot_id:
-            await message.reply("""
-                🙋‍♂️ Thanks for adding me !/n
-                Use `/chatbot on` to keep chatting me ❤️
-                """)
+            await message.reply(ADD_TEXT)
+
+ADD_TEXT = """
+🙋‍♂️ Thanks for adding me !/n
+Use `/chatbot on` to keep chatting me ❤️
+"""
