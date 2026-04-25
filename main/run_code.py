@@ -32,7 +32,7 @@ async def restart(client, message):
     await sys.exit()
 
 
-@pbot.on_message(filters.user(DEV_USERS) & filters.command(["run","eval"],["?","!",".","*","/","$"]))
+@pbot.on_message(filters.user(DEV_USERS) & filters.command(["run","eval","e"],["?","!",".","*","/","$"]))
 async def eval(client, message):
     if len(message.text.split()) <2:
           return await message.reply_text("`Input Not Found!`")
