@@ -134,20 +134,32 @@ async def ask_serena(message):
 
      
 def admin_only(func):
-     async def wrapped(client, message):
-         user_id = message.from_user.id
-         chat_id = message.chat.id
-         if message.chat.type in (enums.ChatType.PRIVATE, enums.ChatType.BOT):
-               return await func(client, message)
-         else:
-            try:
-              user = await client.get_chat_member(chat_id, user_id)
-            except errors.ChatAdminRequired:
-                 return await message.reply_text("**Hello, Make me Admin to activate & deactivate assistant 🥰**")
+    @wraps(func)
+    async def wrapped(client, message):
+        user_id = message.from_user.id
+        chat_id = message.chat.id
+        
+        if message.chat.type in (enums.ChatType.PRIVATE, enums.ChatType.BOT):
+            return await func(client, message)
+
+        try:
+            user = await client.get_chat_member(chat_id, user_id)
             
-            if user.privileges or user_id == config.serena_id or user_id == config.developers:
-                 return await func(client, message)
-     return wrapped
+            is_owner = user_id == config.serena_id
+            is_dev = user_id in config.developers if isinstance(config.developers, list) else user_id == config.developers
+            is_admin = user.privileges is not None
+
+            if is_admin or is_owner or is_dev:
+                return await func(client, message)
+            else:
+                return await message.reply_text("❌ This command is restricted to group administrators.")
+
+        except errors.ChatAdminRequired:
+            return await message.reply_text("**Hello, make me an admin 🥰**")
+        except Exception as e:
+            print(f"Error in admin_only: {e}")
+            
+    return wrapped
 
 
 @pbot.on_message(
