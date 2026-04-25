@@ -62,7 +62,7 @@ async def start_command(client, message):
 
 
 ABOUT_TEXT = """
-Hello! My name is **Serena AI**, and I'm an artificial intelligence designed to provide helpful and clear explanations./n 
+Hello! My name is **Serena AI**, and I'm an artificial intelligence designed to provide helpful and clear explanations.\n 
 As a conversational AI, I'm always ready to assist with any questions or topics you'd like to discuss and i aim to make complex concepts accessible and facilitate meaningful interactions.
 """
 
@@ -259,7 +259,6 @@ async def new_chat(_, message):
             await message.reply(ADD_TEXT)
 
 ADD_TEXT = """
-🙋‍♂️ Thanks for adding me !
-
+🙋‍♂️ Thanks for adding me !\n
 Use `/chatbot on` to keep chatting me ❤️
 """
