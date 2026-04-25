@@ -12,13 +12,11 @@ async def dbtool(_, m : Message):
     if m.from_user.id !=1666544436:
          return await m.reply_text("`You Don't Have Enough Rights To Do This!`")    
     xx = all_users()
-    x = all_groups()
-    tot = int(xx + x)    
+    x = all_groups()    
     await m.reply_text(text=f"""
-📊 Chats Stats
+📊 Chats Stats\n
 🙋‍♂️ Users : `{xx}`
-👥 Groups : `{x}`
-🚧 Total users & groups : `{tot}` """)
+👥 Groups : `{x}` """)
     
 
 @pbot.on_message(filters.command(["bcast", "broadcast", "usercast"], ["/", "!", "?", "."]))
