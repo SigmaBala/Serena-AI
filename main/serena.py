@@ -202,7 +202,7 @@ async def serena_reply(client, message):
             if stickers:
                 random_sticker = random.choice(stickers)
                 if is_pm:
-                    await message.reply_sticker(random_sticker)
+                    await client.send_sticker(chat_id, random_sticker)
                 else:
                     await message.reply_sticker(random_sticker)
             return
