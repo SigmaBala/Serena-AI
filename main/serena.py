@@ -150,12 +150,12 @@ def admin_only(func):
             if is_admin or is_owner or is_dev:
                 return await func(client, message)
             else:
-                return await message.reply_text("❌ This command is restricted to group administrators.")
+                return await message.reply_text("❌ This command is only for administrators.")
 
         except errors.ChatAdminRequired:
             return await message.reply_text("**Hello, make me an admin 🥰**")
         except Exception as e:
-            print(f"Error in admin_only: {e}")
+            print(f"Error: {e}")
             
     return wrapped
 
