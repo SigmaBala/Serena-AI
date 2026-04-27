@@ -105,13 +105,10 @@ async def serena_react(client, message):
           pass
          
 
-async def ask_serena(prompt, context_text=""):
-    # Build a prompt that includes the context of the replied-to message or file
-    full_content = f"Context/Memory: {context_text}\n\nUser Question: {prompt}" if context_text else prompt
-    
+async def ask_serena(message):
     messages = [
         {"role": "system", "content": config.AI_SYS_TXT},
-        {"role": "user", "content": full_content}
+        {"role": "user", "content": message.text}
     ]
 
     headers = {"Authorization": f"Bearer {config.groq_api_key}"}
@@ -123,11 +120,14 @@ async def ask_serena(prompt, context_text=""):
     try:
         res = requests.post("https://api.groq.com/openai/v1/chat/completions", 
                             headers=headers, json=data)
+
         if res.status_code == 200:
-            return {'reply': res.json()["choices"][0]["message"]["content"]}
-        return {'reply': '⚠️ Error connecting to AI.'}
+            answer = res.json()["choices"][0]["message"]["content"]
+            return {'reply': answer}
+        else:
+            return {'reply': '⚠️ Error connecting to AI.'}
     except Exception as e:
-        return {'reply': f"❌ {e}"}
+         return {'reply': f"❌ {e}"}
 
 
 
@@ -161,60 +161,31 @@ def admin_only(func):
 
 
 @pbot.on_message(
-    (filters.text | filters.caption | filters.photo | filters.document | filters.sticker | filters.animation) & ~filters.bot,
+    (filters.text | filters.caption | filters.sticker | filters.animation) & ~filters.bot,
     group=2
 )
 async def serena_reply(client, message):
     chat_id = message.chat.id
+    chat_type = message.chat.type
+    chat_name = message.chat.title or getattr(message.chat, "first_name", "Unknown")
     reply_to = message.reply_to_message
-    
-    # 1. Permission & Mention Checks
-    if not (message.chat.type == enums.ChatType.PRIVATE or 
-            "serena" in (message.text or message.caption or "").lower() or 
-            (reply_to and reply_to.from_user and reply_to.from_user.id == client.me.id)):
+
+    if message.from_user and message.from_user.id == config.serena_id:
         return
 
-    # 2. Extract Conversation Memory (Reply Logic)
-    context_text = ""
-    if reply_to:
-        if reply_to.text or reply_to.caption:
-            context_text = f"Previous Message: {reply_to.text or reply_to.caption}"
-        elif reply_to.photo:
-            context_text = f"Replying to a Photo with caption: {reply_to.caption or 'None'}"
-        elif reply_to.document:
-            context_text = f"Replying to a Document: {reply_to.document.file_name}"
+    # Mention Logic
+    text = (message.text or message.caption or "").strip()
+    text_lower = text.lower()
+    is_pm = chat_type == enums.ChatType.PRIVATE
+    is_mentioned = ("serena" in text_lower or 
+                    f"@{client.me.username.lower()}" in text_lower or 
+                    (reply_to and reply_to.from_user and reply_to.from_user.id == config.serena_id))
 
-    # 3. Handle Current Media (If message itself is an image/doc)
-    current_prompt = message.text or message.caption or "Analyze this file."
-    
-    # Optional: Image/Doc Analysis Trigger
-    # If your AI suite has a vision tool, download and analyze here:
-    if message.photo or message.document:
-        await client.send_chat_action(chat_id, enums.ChatAction.TYPING)
-        # Example: path = await message.download() -> pass to vision AI
-        file_info = f" [File: {message.document.file_name if message.document else 'Image'}]"
-        current_prompt += file_info
+    if not is_pm and not is_mentioned:
+        return
 
-    # 4. Process with AI
-    try:
-        await client.send_chat_action(chat_id, enums.ChatAction.TYPING)
-        await serena_react(client, message)
-
-        ai_response = await ask_serena(current_prompt, context_text)
-        reply_text = ai_response.get("reply")
-
-        # 5. Send Response
-        if len(reply_text) > 4096:
-            # Handle long text by sending as file or splitting
-            with open("reply.txt", "w") as f:
-                f.write(reply_text)
-            await message.reply_document("reply.txt", caption="Result was too long.")
-            os.remove("reply.txt")
-        else:
-            await message.reply_text(reply_text, parse_mode=enums.ParseMode.MARKDOWN)
-
-    except Exception as e:
-        print(f"Error in Serena Analysis: {e}")
+    if not is_pm and not get_chat_mode(chat_id, chat_name):
+        return
 
     # =========================
     # 🎯 Handle Media (Sticker/GIF)
@@ -238,6 +209,25 @@ async def serena_reply(client, message):
         except Exception as e:
             print(f"Sticker Error: {e}")
             return
+
+    # =========================
+    # 🧠 AI Text Processing
+    # =========================
+    # If the code reaches here, it's definitely text, not a sticker.
+    try:
+        await client.send_chat_action(chat_id, enums.ChatAction.TYPING)
+        await serena_react(client, message)
+
+        ai_reply = await ask_serena(message)
+        reply_text = ai_reply.get("reply", "I couldn't generate a reply.")
+
+        if is_pm:
+            await client.send_message(chat_id, reply_text)
+        else:
+            await message.reply_text(reply_text)
+
+    except Exception as e:
+        print(f"Serena reply error: {e}")
 
 
 
