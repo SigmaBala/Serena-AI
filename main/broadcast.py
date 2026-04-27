@@ -9,7 +9,7 @@ import config, asyncio
 
 @pbot.on_message(filters.command(["stats", "users"], ["/", "!", ".", "?"]))
 async def dbtool(_, m : Message):
-    if m.from_user.id not in config.developers:
+    if not m.from_user or m.from_user.id not in config.developers:
          return await m.reply_text("`You Don't Have Enough Rights To Do This!`")    
     xx = all_users()
     x = all_groups()    
@@ -21,7 +21,7 @@ async def dbtool(_, m : Message):
 
 @pbot.on_message(filters.command(["bcast", "broadcast", "usercast"], ["/", "!", "?", "."]))
 async def bcast(_, m : Message):
-    if m.from_user.id not in config.developers:
+    if not m.from_user or m.from_user.id not in config.developers:
          return await m.reply_text("`You Don't Have Enough Rights To Do This!`")
     allusers = users
     lel = await m.reply_text("`⚡️ Processing...`")
@@ -51,7 +51,7 @@ async def bcast(_, m : Message):
 
 @pbot.on_message(filters.command(["gcast", "groupcast"], ["/", "?", "!", "."]))
 async def gcast(_, m : Message):
-    if m.from_user.id not in config.developers:
+    if not m.from_user or m.from_user.id not in config.developers:
          return await m.reply_text("`You Don't Have Enough Rights To Do This!`")
     allgroups = groups
     lel = await m.reply_text("`⚡ Processing...`")
