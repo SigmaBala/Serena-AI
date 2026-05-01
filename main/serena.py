@@ -225,7 +225,9 @@ async def serena_reply(client, message):
         await client.send_chat_action(chat_id, enums.ChatAction.TYPING)
         await serena_react(client, message)
 
-        ai_reply = await ask_serena(chat_id, text) 
+        name = message.from_user.first_name or "User"
+
+        ai_reply = await ask_serena(chat_id, text, name) 
     
         reply_text = ai_reply.get("reply", "I couldn't generate a reply.")
 
