@@ -114,3 +114,27 @@ def all_groups():
     group = groups.find({})
     grps = len(list(group))
     return grps
+
+
+def get_chat_history(chat_id):
+    """Retrieves the last 10 messages for a specific chat_id."""
+    chat_data = db.find_one({"chat_id": chat_id})
+    if chat_data and "history" in chat_data:
+        return chat_data["history"]
+    return []
+
+
+def update_chat_history(chat_id, user_msg, ai_msg):
+    """Saves the exchange and keeps history at a maximum of 12 messages."""
+    history = get_chat_history(chat_id)
+    history.append({"role": "user", "content": user_msg})
+    history.append({"role": "assistant", "content": ai_msg})
+    
+    # Keep only the last 12 messages to stay within token limits
+    history = history[-12:]
+    
+    db.update_one(
+        {"chat_id": chat_id},
+        {"$set": {"history": history}},
+        upsert=True
+    )
