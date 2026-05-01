@@ -105,11 +105,13 @@ async def serena_react(client, message):
           pass
          
 
-async def ask_serena(chat_id, user_text):
+async def ask_serena(chat_id, user_text, user_name):
   
     history = get_chat_history(chat_id)
     
-    messages = [{"role": "system", "content": config.AI_SYS_TXT}]
+    personalized_sys_prompt = config.AI_SYS_TXT.replace("{user_name}", user_name).replace("[user_name]", user_name)
+    
+    messages = [{"role": "system", "content": personalized_sys_prompt}]
     messages.extend(history)
     messages.append({"role": "user", "content": user_text})
 
