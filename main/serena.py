@@ -105,11 +105,13 @@ async def serena_react(client, message):
           pass
          
 
-async def ask_serena(message):
-    messages = [
-        {"role": "system", "content": config.AI_SYS_TXT},
-        {"role": "user", "content": message.text}
-    ]
+async def ask_serena(chat_id, user_text):
+  
+    history = get_chat_history(chat_id)
+    
+    messages = [{"role": "system", "content": config.AI_SYS_TXT}]
+    messages.extend(history)
+    messages.append({"role": "user", "content": user_text})
 
     headers = {"Authorization": f"Bearer {config.groq_api_key}"}
     data = {
@@ -123,6 +125,9 @@ async def ask_serena(message):
 
         if res.status_code == 200:
             answer = res.json()["choices"][0]["message"]["content"]
+            
+            update_chat_history(chat_id, user_text, answer)
+            
             return {'reply': answer}
         else:
             return {'reply': '⚠️ Error connecting to AI.'}
@@ -218,7 +223,8 @@ async def serena_reply(client, message):
         await client.send_chat_action(chat_id, enums.ChatAction.TYPING)
         await serena_react(client, message)
 
-        ai_reply = await ask_serena(message)
+        ai_reply = await ask_serena(chat_id, text) 
+    
         reply_text = ai_reply.get("reply", "I couldn't generate a reply.")
 
         if is_pm:
@@ -228,9 +234,7 @@ async def serena_reply(client, message):
 
     except Exception as e:
         print(f"Serena reply error: {e}")
-
-
-
+      
 
 @pbot.on_message(filters.command('chatbot', prefixes=['.', '?', '/']))
 @admin_only
