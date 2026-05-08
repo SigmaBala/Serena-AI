@@ -22,7 +22,7 @@ START_GIF = "https://www.image2url.com/r2/default/videos/1776914939431-33d60ca9-
 
 START_BUTTONS = InlineKeyboardMarkup([
         [
-          InlineKeyboardButton("Add Me To Your Group ➕", url="https://t.me/SerenaAIChatBot?startgroup=true", style=enums.ButtonStyle.DANGER)
+          InlineKeyboardButton("Add Me To Your Group ➕", url="http://t.me/ShinchanFilterBot?startgroup=true&admin=manage_chat+delete_messages", style=enums.ButtonStyle.DANGER)
         ],
         [
           InlineKeyboardButton("Updates Channel 📢", url="https://t.me/nandhabots", style=enums.ButtonStyle.PRIMARY),
