@@ -107,11 +107,27 @@ async def serena_react(client, message):
 async def ask_serena(chat_id: int, user_text: str, user_name: str) -> Dict[str, str]:
     history = get_chat_history(chat_id)
 
-    personalized_sys_prompt = config.AI_SYS_TXT.replace(
-        "{user_name}", user_name
-    ).replace("[user_name]", user_name)
+    # Clean up the user's name just in case it contains Markdown symbols
+    clean_name = re.sub(r'[*_`\[\]()@]', '', user_name).strip()
+    if not clean_name:
+        clean_name = "User"
 
-    messages = [{"role": "system", "content": personalized_sys_prompt}]
+    # Format the personalized system text from config
+    personalized_sys_prompt = config.AI_SYS_TXT.replace(
+        "{user_name}", clean_name
+    ).replace("[user_name]", clean_name)
+
+    # 🔧 STAGE 1 GUARDRAIL: Strict system architecture forcing ONLY the pure name string
+    strict_formatting_rule = (
+        f"\n\n[CRITICAL RULE]: You are talking to {clean_name}. "
+        f"You must refer to them ONLY as '{clean_name}'. "
+        f"NEVER use usernames (e.g., '@username'), never append symbols, and do not use generic tags. "
+        f"Speak naturally using only their plain name: {clean_name}."
+    )
+    
+    final_system_prompt = personalized_sys_prompt + strict_formatting_rule
+
+    messages = [{"role": "system", "content": final_system_prompt}]
     messages.extend(history)
     messages.append({"role": "user", "content": user_text})
 
@@ -130,6 +146,11 @@ async def ask_serena(chat_id: int, user_text: str, user_name: str) -> Dict[str, 
 
         if res.status_code == 200:
             answer = res.json()["choices"][0]["message"]["content"]
+            
+            # 🔧 STAGE 2 GUARDRAIL: Safe Post-Processing Regex 
+            # Strips out any accidental lingering '@username' mentions the AI might still generate
+            answer = re.sub(r'@\w+', clean_name, answer)
+            
             update_chat_history(chat_id, user_text, answer)
             return {"reply": answer}
         
