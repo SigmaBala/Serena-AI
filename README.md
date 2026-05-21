@@ -209,7 +209,7 @@ All contributions are welcome - from bug fixes to documentation improvements!
 
 ## 📞 Community & Support
 
-- **Chat with Serena**: [@ShinchanFilterBot](https://t.me/ShinchanFilterBot)
+- **Chat with Serena**: [@SerenaAiChatBot](https://t.me/SerenaAiChatBot)
 - **Updates & News**: [@nandhabots](https://t.me/nandhabots)
 - **Report Issues**: [GitHub Issues](https://github.com/sigmabala/serena-ai/issues)
 - **Discuss Ideas**: [GitHub Discussions](https://github.com/sigmabala/serena-ai/discussions)
