@@ -274,7 +274,14 @@ async def serena_reply(client, message):
         await client.send_chat_action(chat_id, enums.ChatAction.TYPING)
         await serena_react(client, message)
 
-        name = message.from_user.first_name if message.from_user else "User"
+        # 🔧 FIX: Strip out markdown/HTML and extract ONLY the clean text name
+        name = "User"
+        if message.from_user:
+            name = message.from_user.first_name or message.from_user.username or "User"
+            # Remove any accidental Telegram styling characters if users put them in their names
+            name = re.sub(r'[*_`\[\]()]', '', name).strip()
+            if not name:
+                name = "User"
 
         ai_reply = await ask_serena(chat_id, text, name)
         reply_text = ai_reply.get("reply", "I couldn't generate a reply.")
