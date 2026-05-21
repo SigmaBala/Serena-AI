@@ -105,28 +105,41 @@ async def serena_react(client, message):
 
 
 async def ask_serena(chat_id: int, user_text: str, user_name: str) -> Dict[str, str]:
-    history = get_chat_history(chat_id)
-
-    # Clean up the user's name just in case it contains Markdown symbols
+    # 🔧 FIX 1: Strict cleaning of the name argument passed into the function
     clean_name = re.sub(r'[*_`\[\]()@]', '', user_name).strip()
     if not clean_name:
         clean_name = "User"
 
-    # Format the personalized system text from config
+    raw_history = get_chat_history(chat_id)
+    history = []
+
+    # 🔧 FIX 2: Sanitize your database history logs before sending them to the Groq API.
+    # This prevents the AI from seeing or mimicking old usernames recorded in previous chats.
+    if raw_history and isinstance(raw_history, list):
+        for msg in raw_history:
+            if isinstance(msg, dict) and "content" in msg:
+                cleaned_content = re.sub(r'@\w+', clean_name, msg["content"])
+                history.append({"role": msg.get("role", "user"), "content": cleaned_content})
+            else:
+                history.append(msg)
+    else:
+        history = raw_history
+
+    # Format the primary system prompt from your config file
     personalized_sys_prompt = config.AI_SYS_TXT.replace(
         "{user_name}", clean_name
     ).replace("[user_name]", clean_name)
 
-    # 🔧 STAGE 1 GUARDRAIL: Strict system architecture forcing ONLY the pure name string
+    # 🔧 FIX 3: Inject un-bypassable system rules directly into the execution prompt array
     strict_formatting_rule = (
-        f"\n\n[CRITICAL RULE]: You are talking to {clean_name}. "
-        f"You must refer to them ONLY as '{clean_name}'. "
-        f"NEVER use usernames (e.g., '@username'), never append symbols, and do not use generic tags. "
-        f"Speak naturally using only their plain name: {clean_name}."
+        f"\n\n[CRITICAL SYSTEM BOUNDARY]: You are conversing directly with {clean_name}. "
+        f"You must address them ONLY as '{clean_name}'. Do NOT append or use standard Telegram "
+        f"usernames containing '@' symbols. Never generate '@username' strings under any condition."
     )
     
     final_system_prompt = personalized_sys_prompt + strict_formatting_rule
 
+    # Reconstruct the API message frame safely
     messages = [{"role": "system", "content": final_system_prompt}]
     messages.extend(history)
     messages.append({"role": "user", "content": user_text})
@@ -147,8 +160,8 @@ async def ask_serena(chat_id: int, user_text: str, user_name: str) -> Dict[str, 
         if res.status_code == 200:
             answer = res.json()["choices"][0]["message"]["content"]
             
-            # 🔧 STAGE 2 GUARDRAIL: Safe Post-Processing Regex 
-            # Strips out any accidental lingering '@username' mentions the AI might still generate
+            # 🔧 FIX 4: Safety post-processing filter. If the model hallucinations trigger an '@',
+            # it replaces it with the clean plain-text name before saving or replying.
             answer = re.sub(r'@\w+', clean_name, answer)
             
             update_chat_history(chat_id, user_text, answer)
