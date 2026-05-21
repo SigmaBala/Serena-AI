@@ -105,16 +105,18 @@ async def serena_react(client, message):
 
 
 async def ask_serena(chat_id: int, user_text: str, user_name: str) -> Dict[str, str]:
-    # 🔧 FIX 1: Strict cleaning of the name argument passed into the function
+    # Ensure name contains zero markdown markers or username elements
     clean_name = re.sub(r'[*_`\[\]()@]', '', user_name).strip()
-    if not clean_name:
-        clean_name = "User"
+    if not clean_name or clean_name.lower() in ["user", "unknown", "none"]:
+        clean_name = "Friend"
+
+    # Deep clean incoming user text so the AI doesn't see lingering usernames in PMs
+    cleaned_user_text = re.sub(r'@\w+', clean_name, user_text)
 
     raw_history = get_chat_history(chat_id)
     history = []
 
-    # 🔧 FIX 2: Sanitize your database history logs before sending them to the Groq API.
-    # This prevents the AI from seeing or mimicking old usernames recorded in previous chats.
+    # Clean historical entries to prevent legacy format imitation
     if raw_history and isinstance(raw_history, list):
         for msg in raw_history:
             if isinstance(msg, dict) and "content" in msg:
@@ -122,33 +124,29 @@ async def ask_serena(chat_id: int, user_text: str, user_name: str) -> Dict[str, 
                 history.append({"role": msg.get("role", "user"), "content": cleaned_content})
             else:
                 history.append(msg)
-    else:
-        history = raw_history
 
-    # Format the primary system prompt from your config file
-    personalized_sys_prompt = config.AI_SYS_TXT.replace(
-        "{user_name}", clean_name
-    ).replace("[user_name]", clean_name)
+    # Re-verify layout template modifications inside config variables
+    base_sys = getattr(config, "AI_SYS_TXT", "You are Serena, an AI assistant.")
+    personalized_sys_prompt = base_sys.replace("{user_name}", clean_name).replace("[user_name]", clean_name)
 
-    # 🔧 FIX 3: Inject un-bypassable system rules directly into the execution prompt array
+    # Rigid structural ruleset injection
     strict_formatting_rule = (
-        f"\n\n[CRITICAL SYSTEM BOUNDARY]: You are conversing directly with {clean_name}. "
-        f"You must address them ONLY as '{clean_name}'. Do NOT append or use standard Telegram "
-        f"usernames containing '@' symbols. Never generate '@username' strings under any condition."
+        f"\n\n[CRITICAL OPERATIONAL DIRECTIVE]: You are in a private chat with {clean_name}. "
+        f"Do NOT invent or utilize username tags beginning with '@'. "
+        f"Address the person only as '{clean_name}' naturally within your sentences. "
+        f"Never output '@' formats."
     )
     
     final_system_prompt = personalized_sys_prompt + strict_formatting_rule
 
-    # Reconstruct the API message frame safely
     messages = [{"role": "system", "content": final_system_prompt}]
     messages.extend(history)
-    messages.append({"role": "user", "content": user_text})
+    messages.append({"role": "user", "content": cleaned_user_text})
 
     headers = {"Authorization": f"Bearer {config.groq_api_key}"}
     data = {"model": "llama-3.1-8b-instant", "messages": messages}
 
     try:
-        # Non-blocking async HTTP request
         async with httpx.AsyncClient() as async_client:
             res = await async_client.post(
                 "https://api.groq.com/openai/v1/chat/completions",
@@ -160,11 +158,10 @@ async def ask_serena(chat_id: int, user_text: str, user_name: str) -> Dict[str, 
         if res.status_code == 200:
             answer = res.json()["choices"][0]["message"]["content"]
             
-            # 🔧 FIX 4: Safety post-processing filter. If the model hallucinations trigger an '@',
-            # it replaces it with the clean plain-text name before saving or replying.
+            # Post-processing interception: Replace accidental AI username output with the clean name
             answer = re.sub(r'@\w+', clean_name, answer)
             
-            update_chat_history(chat_id, user_text, answer)
+            update_chat_history(chat_id, cleaned_user_text, answer)
             return {"reply": answer}
         
         return {"reply": "⚠️ Error connecting to AI."}
@@ -253,23 +250,19 @@ async def back_to_start(_, query: CallbackQuery):
 async def serena_reply(client, message):
     chat_id = message.chat.id
     chat_type = message.chat.type
-    chat_name = message.chat.title or getattr(message.chat, "first_name", "Chat") or "Unknown"
+    chat_name = message.chat.title or getattr(message.chat, "first_name", "Chat") or "Private Chat"
     reply_to = message.reply_to_message
 
-    # 🔧 FIX 1: Bulletproof check to ensure the bot never responds to itself or other bots
     if message.from_user:
         if message.from_user.is_bot or message.from_user.id == client.me.id:
             return
     else:
-        # If there's no sender profile (anonymous channel post, etc.), skip to avoid crashes
         return
 
-    # Check mention / target matching
     text = (message.text or message.caption or "").strip()
     text_lower = text.lower()
     is_pm = chat_type == enums.ChatType.PRIVATE
     
-    # Check if the bot is explicitly mentioned or replied to
     is_mentioned = (
         "serena" in text_lower
         or f"@{client.me.username.lower()}" in text_lower
@@ -280,7 +273,6 @@ async def serena_reply(client, message):
         )
     )
 
-    # In group chats, ignore if not mentioned or if chatbot is turned off
     if not is_pm:
         if not is_mentioned or not get_chat_mode(chat_id, chat_name):
             return
@@ -289,11 +281,8 @@ async def serena_reply(client, message):
     if message.sticker or message.animation:
         try:
             await client.send_chat_action(chat_id, enums.ChatAction.CHOOSE_STICKER)
-
             if message.sticker:
-                add_chat_sticker(
-                    chat_id=chat_id, sticker_id=message.sticker.file_id
-                )
+                add_chat_sticker(chat_id=chat_id, sticker_id=message.sticker.file_id)
 
             stickers = get_all_stickers()
             if stickers:
@@ -312,15 +301,17 @@ async def serena_reply(client, message):
         await client.send_chat_action(chat_id, enums.ChatAction.TYPING)
         await serena_react(client, message)
 
-        # 🔧 FIX 2: Safe extraction of the clean name string
-        name = "User"
+        # Force plain text formatting extraction
+        name = "Friend"
         if message.from_user:
-            # Prioritize first name, fall back to username, then general fallback
-            raw_name = message.from_user.first_name or message.from_user.username or "User"
-            # Strip markdown formatting and the '@' symbol
+            raw_name = message.from_user.first_name
+            if not raw_name:
+                raw_name = message.from_user.username or "Friend"
+            
+            # Clean formatting symbols completely out of the name variable
             name = re.sub(r'[*_`\[\]()@]', '', raw_name).strip()
-            if not name:
-                name = "User"
+            if not name or name.lower() in ["none", "unknown"]:
+                name = "Friend"
 
         ai_reply = await ask_serena(chat_id, text, name)
         reply_text = ai_reply.get("reply", "I couldn't generate a reply.")
