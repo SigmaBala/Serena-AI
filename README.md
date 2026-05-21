@@ -155,7 +155,7 @@ serena-ai/
 | **AI Engine** | Groq LLaMA 3.1 8B |
 | **Database** | MongoDB |
 | **Async Framework** | asyncio |
-| **HTTP Client** | aiohttp / Requests |
+| **HTTP Client** | httpx / Requests |
 
 </div>
 
