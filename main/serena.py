@@ -243,35 +243,39 @@ async def serena_reply(client, message):
     chat_name = message.chat.title or getattr(message.chat, "first_name", "Chat") or "Unknown"
     reply_to = message.reply_to_message
 
-    if message.from_user and message.from_user.id == config.serena_id:
+    # 🔧 FIX 1: Bulletproof check to ensure the bot never responds to itself or other bots
+    if message.from_user:
+        if message.from_user.is_bot or message.from_user.id == client.me.id:
+            return
+    else:
+        # If there's no sender profile (anonymous channel post, etc.), skip to avoid crashes
         return
 
     # Check mention / target matching
     text = (message.text or message.caption or "").strip()
     text_lower = text.lower()
     is_pm = chat_type == enums.ChatType.PRIVATE
+    
+    # Check if the bot is explicitly mentioned or replied to
     is_mentioned = (
         "serena" in text_lower
         or f"@{client.me.username.lower()}" in text_lower
         or (
             reply_to
             and reply_to.from_user
-            and reply_to.from_user.id == config.serena_id
+            and reply_to.from_user.id == client.me.id
         )
     )
 
-    if not is_pm and not is_mentioned:
-        return
-
-    if not is_pm and not get_chat_mode(chat_id, chat_name):
-        return
+    # In group chats, ignore if not mentioned or if chatbot is turned off
+    if not is_pm:
+        if not is_mentioned or not get_chat_mode(chat_id, chat_name):
+            return
 
     # Handle Media Interactions
     if message.sticker or message.animation:
         try:
-            await client.send_chat_action(
-                chat_id, enums.ChatAction.CHOOSE_STICKER
-            )
+            await client.send_chat_action(chat_id, enums.ChatAction.CHOOSE_STICKER)
 
             if message.sticker:
                 add_chat_sticker(
@@ -295,12 +299,13 @@ async def serena_reply(client, message):
         await client.send_chat_action(chat_id, enums.ChatAction.TYPING)
         await serena_react(client, message)
 
-        # 🔧 FIX: Strip out markdown/HTML and extract ONLY the clean text name
+        # 🔧 FIX 2: Safe extraction of the clean name string
         name = "User"
         if message.from_user:
-            name = message.from_user.first_name or message.from_user.username or "User"
-            # Remove any accidental Telegram styling characters if users put them in their names
-            name = re.sub(r'[*_`\[\]()]', '', name).strip()
+            # Prioritize first name, fall back to username, then general fallback
+            raw_name = message.from_user.first_name or message.from_user.username or "User"
+            # Strip markdown formatting and the '@' symbol
+            name = re.sub(r'[*_`\[\]()@]', '', raw_name).strip()
             if not name:
                 name = "User"
 
