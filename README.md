@@ -165,7 +165,7 @@ serena-ai/
 
 ### Quick Links
 
-[Add to Group](https://t.me/ShinchanFilterBot?startgroup=true&admin=manage_chat+delete_messages) • [Chat Now](https://t.me/ShinchanFilterBot) • [Updates](https://t.me/nandhabots)
+[Add to Group](https://t.me/SerenaAIChatBot?startgroup=true&admin=manage_chat+delete_messages) • [Chat Now](https://t.me/SerenaAIChatBot) • [Updates](https://t.me/nandhabots)
 
 ### Commands
 
