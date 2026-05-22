@@ -219,4 +219,3 @@ def update_chat_history(chat_id, user_msg, ai_msg, user_id=None):
         },
         upsert=True,
     )
-```
