@@ -263,6 +263,7 @@ async def serena_reply(client, message):
     text_lower = text.lower()
     is_pm = chat_type == enums.ChatType.PRIVATE
     
+    # Check if the bot was mentioned or replied to
     is_mentioned = (
         "serena" in text_lower
         or f"@{client.me.username.lower()}" in text_lower
@@ -301,14 +302,17 @@ async def serena_reply(client, message):
         await client.send_chat_action(chat_id, enums.ChatAction.TYPING)
         await serena_react(client, message)
 
-        # Force plain text formatting extraction
+        # 🔧 FIX: Correctly determine who the bot should address
+        target_user = message.from_user
+        
+        # If this is a group reply to someone else (not the bot itself), address the person being replied to
+        if reply_to and reply_to.from_user and reply_to.from_user.id != client.me.id:
+            target_user = reply_to.from_user
+
+        # Force clean name extraction without formatting strings
         name = "Friend"
-        if message.from_user:
-            raw_name = message.from_user.first_name
-            if not raw_name:
-                raw_name = message.from_user.username or "Friend"
-            
-            # Clean formatting symbols completely out of the name variable
+        if target_user:
+            raw_name = target_user.first_name or target_user.username or "Friend"
             name = re.sub(r'[*_`\[\]()@]', '', raw_name).strip()
             if not name or name.lower() in ["none", "unknown"]:
                 name = "Friend"
