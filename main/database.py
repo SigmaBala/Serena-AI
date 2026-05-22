@@ -1,12 +1,12 @@
 
-from pymongo import MongoClient
+from main import mongodb 
 
 # Define your collections
-users_col = db["users"]
-groups_col = db["groups"]
-chat_history_col = db["chat_history"]
-settings_col = db["settings"]
-stickers_col = db["stickers"]
+users_col = mongodb["users"]
+groups_col = mongodb["groups"]
+chat_history_col = mongodb["chat_history"]
+settings_col = mongodb["settings"]
+stickers_col = mongodb["stickers"]
 
 # ==========================================
 # 🧠 DATABASE FUNCTIONS
