@@ -1,4 +1,3 @@
-
 import os
 import random
 import re
@@ -80,13 +79,14 @@ def admin_only(func):
 
             if is_admin or is_owner or is_dev:
                 return await func(client, message)
-            
+
             return await message.reply_text(
                 "❌ This command is only for administrators."
             )
 
         except errors.ChatAdminRequired:
             return await message.reply_text("**Hello, make me an admin 🥰**")
+
         except Exception as e:
             print(f"Admin Check Error: {e}")
 
@@ -98,53 +98,133 @@ async def serena_react(client, message):
         await pbot.send_reaction(
             chat_id=message.chat.id,
             message_id=message.id,
-            emoji=random.choice(["🥰", "❤️", "😁", "🗿", "🤗", "🎉", "😎"]),
+            emoji=random.choice(
+                ["🥰", "❤️", "😁", "🗿", "🤗", "🎉", "😎"]
+            ),
         )
     except Exception:
         pass
 
 
-async def ask_serena(chat_id: int, user_text: str, user_name: str) -> Dict[str, str]:
-    # Ensure name contains zero markdown markers or username elements
-    clean_name = re.sub(r'[*_`\[\]()@]', '', user_name).strip()
-    if not clean_name or clean_name.lower() in ["user", "unknown", "none"]:
+# ==========================================
+# 🧠 AI FUNCTION
+# ==========================================
+
+async def ask_serena(
+    chat_id: int,
+    user_id: int,
+    user_text: str,
+    user_name: str,
+) -> Dict[str, str]:
+
+    # ==========================================
+    # CLEAN USER NAME
+    # ==========================================
+
+    clean_name = re.sub(
+        r"[*_`\[\]()@]",
+        "",
+        user_name,
+    ).strip()
+
+    if not clean_name or clean_name.lower() in [
+        "user",
+        "unknown",
+        "none",
+    ]:
         clean_name = "Friend"
 
-    # Deep clean incoming user text so the AI doesn't see lingering usernames in PMs
-    cleaned_user_text = re.sub(r'@\w+', clean_name, user_text)
+    # ==========================================
+    # CLEAN USER TEXT
+    # ==========================================
 
-    raw_history = get_chat_history(chat_id)
+    cleaned_user_text = re.sub(
+        r"@\w+",
+        "",
+        user_text,
+    ).strip()
+
+    # ==========================================
+    # GET USER-SPECIFIC MEMORY
+    # ==========================================
+
+    raw_history = get_chat_history(
+        chat_id,
+        user_id,
+    )
+
     history = []
 
-    # Clean historical entries to prevent legacy format imitation
     if raw_history and isinstance(raw_history, list):
         for msg in raw_history:
-            if isinstance(msg, dict) and "content" in msg:
-                cleaned_content = re.sub(r'@\w+', clean_name, msg["content"])
-                history.append({"role": msg.get("role", "user"), "content": cleaned_content})
-            else:
-                history.append(msg)
+            if isinstance(msg, dict):
+                history.append(
+                    {
+                        "role": msg.get("role", "user"),
+                        "content": msg.get("content", ""),
+                    }
+                )
 
-    # Re-verify layout template modifications inside config variables
-    base_sys = getattr(config, "AI_SYS_TXT", "You are Serena, an AI assistant.")
-    personalized_sys_prompt = base_sys.replace("{user_name}", clean_name).replace("[user_name]", clean_name)
+    # ==========================================
+    # SYSTEM PROMPT
+    # ==========================================
 
-    # Rigid structural ruleset injection
-    strict_formatting_rule = (
-        f"\n\n[CRITICAL OPERATIONAL DIRECTIVE]: You are in a private chat with {clean_name}. "
-        f"Do NOT invent or utilize username tags beginning with '@'. "
-        f"Address the person only as '{clean_name}' naturally within your sentences. "
-        f"Never output '@' formats."
+    base_sys = getattr(
+        config,
+        "AI_SYS_TXT",
+        "You are Serena AI, a smart assistant.",
     )
-    
-    final_system_prompt = personalized_sys_prompt + strict_formatting_rule
 
-    messages = [{"role": "system", "content": final_system_prompt}]
-    messages.extend(history)
-    messages.append({"role": "user", "content": cleaned_user_text})
+    personalized_sys_prompt = (
+        base_sys.replace("{user_name}", clean_name)
+        .replace("[user_name]", clean_name)
+    )
 
-    headers = {"Authorization": f"Bearer {config.groq_api_key}"}
-    data = {"model": "llama-3.1-8b-instant", "messages": messages}
+    strict_formatting_rule = f"""
+
+IMPORTANT RULES:
+- You are talking ONLY with {clean_name}
+- Never confuse users
+- Never mention previous users
+- Never invent usernames
+- Never use @ tags
+- Reply naturally
+"""
+
+    final_system_prompt = (
+        personalized_sys_prompt
+        + strict_formatting_rule
+    )
+
+    # ==========================================
+    # BUILD MESSAGES
+    # ==========================================
+
+    messages = [
+        {
+            "role": "system",
+            "content": final_system_prompt,
+        }
+    ]
+
+    messages.extend(history[-10:])
+
+    messages.append(
+        {
+            "role": "user",
+            "content": cleaned_user_text,
+        }
+    )
+
+    headers = {
+        "Authorization": f"Bearer {config.groq_api_key}"
+    }
+
+    data = {
+        "model": "llama-3.1-8b-instant",
+        "messages": messages,
+        "temperature": 0.7,
+    }
 
     try:
         async with httpx.AsyncClient() as async_client:
@@ -152,23 +232,50 @@ async def ask_serena(chat_id: int, user_text: str, user_name: str) -> Dict[str, 
                 "https://api.groq.com/openai/v1/chat/completions",
                 headers=headers,
                 json=data,
-                timeout=15.0,
+                timeout=20.0,
             )
 
         if res.status_code == 200:
             answer = res.json()["choices"][0]["message"]["content"]
-            
-            # Post-processing interception: Replace accidental AI username output with the clean name
-            answer = re.sub(r'@\w+', clean_name, answer)
-            
-            update_chat_history(chat_id, cleaned_user_text, answer)
+
+            # ==========================================
+            # FINAL CLEANUP
+            # ==========================================
+
+            answer = re.sub(
+                r"@\w+",
+                clean_name,
+                answer,
+            )
+
+            # ==========================================
+            # SAVE USER MEMORY
+            # ==========================================
+
+            update_chat_history(
+                chat_id,
+                cleaned_user_text,
+                answer,
+                user_id,
+            )
+
             return {"reply": answer}
-        
-        return {"reply": "⚠️ Error connecting to AI."}
+
+        return {
+            "reply": "⚠️ Error connecting to AI."
+        }
+
     except httpx.TimeoutException:
-        return {"reply": "⏳ AI request timed out. Please try again."}
+        return {
+            "reply": "⏳ AI request timed out. Please try again."
+        }
+
     except Exception as e:
-        return {"reply": f"❌ An unexpected error occurred: {e}"}
+        print(f"AI Error: {e}")
+
+        return {
+            "reply": "❌ An unexpected error occurred."
+        }
 
 
 # ==========================================
@@ -180,10 +287,13 @@ async def ask_serena(chat_id: int, user_text: str, user_name: str) -> Dict[str, 
 async def start_command(client, message):
     if message.chat.type == ChatType.PRIVATE:
         add_user(message.from_user.id)
+
         try:
             await client.send_sticker(
-                chat_id=message.chat.id, sticker=random.choice(START_STICKERS)
+                chat_id=message.chat.id,
+                sticker=random.choice(START_STICKERS),
             )
+
         except Exception as e:
             print(f"Start Sticker Error: {e}")
 
@@ -196,7 +306,9 @@ async def start_command(client, message):
     )
 
     await message.reply_animation(
-        animation=START_GIF, caption=text, reply_markup=START_BUTTONS
+        animation=START_GIF,
+        caption=text,
+        reply_markup=START_BUTTONS,
     )
 
 
@@ -221,7 +333,10 @@ async def about(_, query: CallbackQuery):
         ]
     )
 
-    await query.message.edit_caption(caption=ABOUT_TEXT, reply_markup=kb)
+    await query.message.edit_caption(
+        caption=ABOUT_TEXT,
+        reply_markup=kb,
+    )
 
 
 @pbot.on_callback_query(filters.regex("start_back"))
@@ -234,7 +349,10 @@ async def back_to_start(_, query: CallbackQuery):
         "• `/chatbot on/off` - Enable/Disable me in groups."
     )
 
-    await query.message.edit_caption(caption=text, reply_markup=START_BUTTONS)
+    await query.message.edit_caption(
+        caption=text,
+        reply_markup=START_BUTTONS,
+    )
 
 
 # ==========================================
@@ -243,27 +361,52 @@ async def back_to_start(_, query: CallbackQuery):
 
 
 @pbot.on_message(
-    (filters.text | filters.caption | filters.sticker | filters.animation)
+    (
+        filters.text
+        | filters.caption
+        | filters.sticker
+        | filters.animation
+    )
     & ~filters.bot,
     group=2,
 )
 async def serena_reply(client, message):
+
     chat_id = message.chat.id
+
     chat_type = message.chat.type
-    chat_name = message.chat.title or getattr(message.chat, "first_name", "Chat") or "Private Chat"
+
+    chat_name = (
+        message.chat.title
+        or getattr(message.chat, "first_name", "Chat")
+        or "Private Chat"
+    )
+
     reply_to = message.reply_to_message
 
     if message.from_user:
-        if message.from_user.is_bot or message.from_user.id == client.me.id:
+        if (
+            message.from_user.is_bot
+            or message.from_user.id == client.me.id
+        ):
             return
     else:
         return
 
-    text = (message.text or message.caption or "").strip()
+    text = (
+        message.text
+        or message.caption
+        or ""
+    ).strip()
+
     text_lower = text.lower()
+
     is_pm = chat_type == enums.ChatType.PRIVATE
-    
-    # Check if the bot was mentioned or replied to
+
+    # ==========================================
+    # CHECK MENTIONS
+    # ==========================================
+
     is_mentioned = (
         "serena" in text_lower
         or f"@{client.me.username.lower()}" in text_lower
@@ -275,89 +418,172 @@ async def serena_reply(client, message):
     )
 
     if not is_pm:
-        if not is_mentioned or not get_chat_mode(chat_id, chat_name):
+        if (
+            not is_mentioned
+            or not get_chat_mode(chat_id, chat_name)
+        ):
             return
 
-    # Handle Media Interactions
+    # ==========================================
+    # HANDLE MEDIA
+    # ==========================================
+
     if message.sticker or message.animation:
         try:
-            await client.send_chat_action(chat_id, enums.ChatAction.CHOOSE_STICKER)
+            await client.send_chat_action(
+                chat_id,
+                enums.ChatAction.CHOOSE_STICKER,
+            )
+
             if message.sticker:
-                add_chat_sticker(chat_id=chat_id, sticker_id=message.sticker.file_id)
+                add_chat_sticker(
+                    chat_id=chat_id,
+                    sticker_id=message.sticker.file_id,
+                )
 
             stickers = get_all_stickers()
+
             if stickers:
                 random_sticker = random.choice(stickers)
+
                 if is_pm:
-                    await client.send_sticker(chat_id, random_sticker)
+                    await client.send_sticker(
+                        chat_id,
+                        random_sticker,
+                    )
                 else:
-                    await message.reply_sticker(random_sticker)
+                    await message.reply_sticker(
+                        random_sticker
+                    )
+
             return
+
         except Exception as e:
             print(f"Sticker Processing Error: {e}")
             return
 
-    # Handle Standard Text Interactions
+    # ==========================================
+    # HANDLE TEXT
+    # ==========================================
+
     try:
-        await client.send_chat_action(chat_id, enums.ChatAction.TYPING)
+        await client.send_chat_action(
+            chat_id,
+            enums.ChatAction.TYPING,
+        )
+
         await serena_react(client, message)
 
-        # 🔧 FIX: Correctly determine who the bot should address
+        # ==========================================
+        # CLEAN USER IDENTIFICATION
+        # ==========================================
+
         target_user = message.from_user
-        
-        # If this is a group reply to someone else (not the bot itself), address the person being replied to
-        if reply_to and reply_to.from_user and reply_to.from_user.id != client.me.id:
-            target_user = reply_to.from_user
 
-        # Force clean name extraction without formatting strings
-        name = "Friend"
-        if target_user:
-            raw_name = target_user.first_name or target_user.username or "Friend"
-            name = re.sub(r'[*_`\[\]()@]', '', raw_name).strip()
-            if not name or name.lower() in ["none", "unknown"]:
-                name = "Friend"
+        name = (
+            target_user.first_name
+            or target_user.username
+            or "Friend"
+        )
 
-        ai_reply = await ask_serena(chat_id, text, name)
-        reply_text = ai_reply.get("reply", "I couldn't generate a reply.")
+        name = re.sub(
+            r'[*_`\[\]()@]',
+            '',
+            name,
+        ).strip()
+
+        if not name:
+            name = "Friend"
+
+        # ==========================================
+        # GENERATE AI REPLY
+        # ==========================================
+
+        ai_reply = await ask_serena(
+            chat_id=chat_id,
+            user_id=target_user.id,
+            user_text=text,
+            user_name=name,
+        )
+
+        reply_text = ai_reply.get(
+            "reply",
+            "I couldn't generate a reply.",
+        )
 
         if is_pm:
-            await client.send_message(chat_id, reply_text)
+            await client.send_message(
+                chat_id,
+                reply_text,
+            )
         else:
-            await message.reply_text(reply_text)
+            await message.reply_text(
+                reply_text
+            )
 
     except Exception as e:
         print(f"Serena core reply error: {e}")
 
 
-@pbot.on_message(filters.command("chatbot", prefixes=[".", "?", "/"]))
+@pbot.on_message(
+    filters.command(
+        "chatbot",
+        prefixes=[".", "?", "/"],
+    )
+)
 @admin_only
 async def serena_mode(client, message):
+
     chat_id = message.chat.id
-    modes = {"on": True, "off": False}
+
+    modes = {
+        "on": True,
+        "off": False,
+    }
 
     args = message.text.split()
+
     if len(args) == 2 and args[1].lower() in modes:
+
         key = args[1].lower()
+
         mode_val = modes[key]
-        chatname = message.chat.title or (
-            getattr(message.chat, "first_name", "Chat") or "Group"
+
+        chatname = (
+            message.chat.title
+            or getattr(
+                message.chat,
+                "first_name",
+                "Chat",
+            )
+            or "Group"
         )
 
-        set_chat_mode(chat_id=chat_id, chatname=chatname, mode=mode_val)
+        set_chat_mode(
+            chat_id=chat_id,
+            chatname=chatname,
+            mode=mode_val,
+        )
+
         return await message.reply(
             f"**Serena AI {key.upper()} in {chatname}.**"
         )
-    
-    return await message.reply("Usage: `/chatbot on|off`")
+
+    return await message.reply(
+        "Usage: `/chatbot on|off`"
+    )
 
 
 @pbot.on_message(filters.new_chat_members)
 async def new_chat(_, message):
+
     bot_id = (await pbot.get_me()).id
+
     add_group(message.chat.id)
+
     for member in message.new_chat_members:
         if member.id == bot_id:
             await message.reply(
-                "🙋‍♂️ Thanks for adding me !\n\nUse `/chatbot on` to keep chatting me ❤️"
+                "🙋‍♂️ Thanks for adding me !\n\n"
+                "Use `/chatbot on` to keep chatting me ❤️"
             )
-          
