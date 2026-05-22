@@ -197,8 +197,8 @@ def update_chat_history(chat_id, user_msg, ai_msg, user_id=None):
         "content": ai_msg,
     })
 
-    # Keep only the last 10 messages (Temporary rolling storage)
-    history = history[-30:]
+    # Keep only the last 20 messages (Temporary rolling storage)
+    history = history[-20:]
 
     db.update_one(
         {"chat_id": memory_id},
