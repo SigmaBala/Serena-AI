@@ -3,10 +3,10 @@ import os
 
 name = 'Serena AI'
 serena_id = 8352844426
-api_id = os.getenv('API_ID', '13257951')
-api_hash = os.getenv('API_HASH', 'd8ea642aedb736d40035bc05f0cfd477')
-token = os.getenv('TOKEN', '8352844426:AAHRu1of9IdBKyrRAYB1nD_MI_jiO8pJc6o')
-db_url = os.getenv('DB_URL', 'mongodb+srv://serena:serena123@cluster0.yeaa9qk.mongodb.net')
+api_id = os.getenv('API_ID', '24322364')
+api_hash = os.getenv('API_HASH', 'HdyijKajjheUkkhbnbfdrtInffvjknkkjgtrkiijnoolmm')
+token = os.getenv('TOKEN', '674367548888:AAHRu1of9IdBKyfhhrruibvceeyimmnrw575hbcfeeuk')
+db_url = os.getenv('DB_URL', '')
 
 developers = [5696053228, 1666544436, 2030938170, 5456798232]
 
