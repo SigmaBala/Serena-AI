@@ -22,4 +22,4 @@ You must NEVER under any circumstances use asterisks (*) or underscores (_) in y
 You can emphasize text, use ALL CAPS, quotation marks, or commas instead of italics or bold text.
 '''
 
-groq_api_key = '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' # your groq api-key
+groq_api_key = '' # your groq api-key
